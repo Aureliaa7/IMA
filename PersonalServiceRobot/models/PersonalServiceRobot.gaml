@@ -14,6 +14,8 @@ global {
 	list<string> object_names <- ["notebook", "book"];
 	string requested_object_name;
 	point owner_location;
+	int no_total_requests <- 0;
+	int no_fulfilled_requests <- 0;
 	
 	geometry shape <- envelope(wall_shapefile);
 
@@ -57,10 +59,7 @@ species wall {
 species species_base {
 	
 	list<cell> get_available_cells {
-		list<cell> cells_without_objects <- cell where not each.has_object;
-		list<cell> cells_without_persons <- cell where not each.has_person;
-		list<cell> cells_without_walls <- cell where not each.is_wall;
-		list<cell> available_cells <- cells_without_objects + cells_without_persons + cells_without_walls;
+		list<cell> available_cells <- cell where not each.is_wall;
 		
 		return available_cells;
 	}
@@ -80,11 +79,6 @@ species person parent: species_base skills: [moving] {
 			has_person <- true;
 		}
 	}
-	
-//	reflex basic_move when: every(20#cycles){
-//		point my_cell <- one_of(get_available_cells()).location;
-//		location <- my_cell.location;
-//	}
 	
 	aspect image_aspect {
 		draw icon size: icon_size;
@@ -151,8 +145,6 @@ species service_robot parent: person {
 				
 		do goto target: object_location speed: 1.0 on: get_available_cells() recompute_path: false;
 		
-		//TODO solve a bug without really knowing what the real issue is...
-		// it crashes here when the robot brings the object to its owner
 		if (self distance_to object_location) < 1.0 {
 			grabbed_object <- true;
 			ask requested_obj {
@@ -177,10 +169,9 @@ species service_robot parent: person {
 				is_waiting_for_object <- false;
 			}
 			
-			//requested_obj <- nil;
-			//object_location <- nil;
 			grabbed_object <- false;
 			is_busy <- false;
+			no_fulfilled_requests <- no_fulfilled_requests + 1;
 		}
 	}
 	
@@ -190,7 +181,6 @@ species service_robot parent: person {
 		write "busy: " + is_busy;
 		point my_next_location <- one_of(get_available_cells()).location;
 		do goto target: my_next_location speed: 0.5 on: get_available_cells();
-		//location <- my_cell.location;
 	}
 }
 
@@ -203,21 +193,6 @@ species robot_owner parent: person {
 		image_file image <- image_file("../images/robot_owner.png");
 		owner_location <- one_of(get_available_cells()).location;
 		do initialize(5.0, image, nil, owner_location);
-		
-		requested_object <- ask_for_random_object();
-		write "init- requested obj: " + requested_object;
-		if requested_object != nil {
-			ask requested_object {
-				is_requested_by_person <- true;
-			}
-			
-			service_robot robot <- one_of(service_robot);
-			ask robot {
-				is_busy <- true;
-			}
-			
-			write "init robot owner - robot.is_busy: " + robot.is_busy;
-		}
 	}
 	
 	reflex ask_for_object when: not is_waiting_for_object {
@@ -236,12 +211,13 @@ species robot_owner parent: person {
 		}	
 	}
 	
-	reflex basic_move when: every(50#cycle) {// when: not is_waiting_for_object {
+	reflex basic_move when: every(60#cycle) {// when: not is_waiting_for_object {
 		owner_location <- one_of(get_available_cells()).location;
 		location <- owner_location;
 	} 
 	
 	object_base ask_for_random_object {
+		no_total_requests <- no_total_requests + 1;
 		requested_object_name <- one_of(object_names);
 		write "requested_object_name: " + requested_object_name;
 		object_base object;
@@ -303,6 +279,14 @@ species book parent: object_base {
 experiment personalservicerobot type: gui {
 	float minimum_cycle_duration <- 0.04;
 	output {
+		layout #split;
+		display result { 
+			chart "Result" type: series background: #white {
+				data '#requests' value: no_total_requests color: #green;
+				data '#fulfilled_requests' value: no_fulfilled_requests color: #red;
+			}
+		}
+		
 		display display1 type: opengl {
 			image "../images/floor.jpg";
 			species wall refresh: false;

@@ -1,0 +1,5 @@
+*** References ***
+------------------
+
+* The apartment configuration is based on a model provided by Gama: Evacuation-> Goto on Grid
+* http://gama-platform.org
