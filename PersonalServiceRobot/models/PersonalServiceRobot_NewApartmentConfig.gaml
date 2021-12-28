@@ -1,22 +1,20 @@
 /**
-* Name: PersonalServiceRobot
+* Name: PersonalServiceRobotNewApartmentConfig
 * Based on the internal empty template. 
 * Author: Aurelia Bălășoiu
 * Tags: 
 */
-model PersonalServiceRobot
+model PersonalServiceRobotNewApartmentConfig
 
-global {
-	file wall_shapefile <- shape_file("../includes/walls.shp");
-	
+global {	
 	string closet_obj <- "closet";
 	string bed_obj <- "bed";
 	string sofa_obj <- "sofa";
 	string table_obj <- "table";
 	
 	int number_of_persons <- 4;
-	int number_of_columns <- 90;
-	int number_of_rows <- 90;
+	int number_of_columns <- 40;
+	int number_of_rows <- 40;
 	int no_notebooks <- 5;
 	int no_books <- 7;	
 	
@@ -33,22 +31,16 @@ global {
 	rgb notebook_color <- #yellow;
 	
 	
-	geometry shape <- envelope(wall_shapefile);
-
 	init {
-		create wall from: wall_shapefile {
-			ask cell overlapping self {
-				is_wall <- true;
-			}
-		}
+		do create_apartment_configuration();
 		
-		do create_object(point(4, 7), closet_obj);
-		do create_object(point(45, 105), closet_obj);
-		do create_object(point(112, 50), closet_obj);
-		do create_object(point(110, 6), bed_obj);
-		do create_object(point(90, 58), bed_obj);
-		do create_object(point(60, 45), table_obj);
-		do create_object(point(90, 32), sofa_obj);
+		do create_object(point(5, 7), closet_obj);
+		do create_object(point(67, 90), closet_obj);
+		do create_object(point(6, 92), closet_obj);
+		do create_object(point(80, 6), bed_obj);
+		do create_object(point(90, 48), bed_obj);
+		do create_object(point(30, 65), table_obj);
+		do create_object(point(10, 47), sofa_obj);
 		
 		create notebook number: no_notebooks;
 		create book number: no_books;
@@ -56,7 +48,6 @@ global {
 		create regular_person number: number_of_persons;
 		create service_robot;
 		create robot_owner;
-
 	}
 	
 	action create_object(point object_location, string object_name) {
@@ -95,15 +86,89 @@ global {
 			}
 		}
 	}
-}
+
+	action create_apartment_configuration {
+		list<cell> my_cells;
+		int current_y <- 0;
+		int current_x <- 0;
+		int max_x <- 39;
+		int max_y <- 39;
+	
+		// first, color the borders
+		// the upper border
+		loop times: number_of_columns {
+			my_cells << one_of(cell where (each.grid_x = current_x and each.grid_y = current_y));
+			current_x <- current_x + 1;
+		}
+		
+		// the left border
+		current_x <- 0;
+		current_y <- 0;
+		loop times: number_of_rows {
+			my_cells << one_of(cell where (each.grid_x = current_x and each.grid_y = current_y));
+			current_y <- current_y + 1;
+		}
+		
+		// the right border
+		current_x <-max_x;
+		current_y <- 0;
+		loop times: number_of_rows {
+			my_cells << one_of(cell where (each.grid_x = current_x and each.grid_y = current_y));
+			current_y <- current_y + 1;
+		}
+		
+		// the bottom border
+		current_x <- 0;
+		current_y <- max_y;
+		loop times: number_of_columns {
+			my_cells << one_of(cell where (each.grid_x = current_x and each.grid_y = current_y));
+			current_x <- current_x + 1;
+		}
+		
+		current_x <- 19;
+		my_cells << one_of(cell where (each.grid_x = current_x and each.grid_y = 1));
+		my_cells << one_of(cell where (each.grid_x = current_x and each.grid_y = 2));
+		
+		current_y <- 6;
+		loop times: 10 {
+			my_cells << one_of(cell where (each.grid_x = current_x and each.grid_y = current_y));
+			current_y <- current_y + 1;
+		}
+		
+		loop times: (38 - current_y) {
+			my_cells << one_of(cell where (each.grid_x = current_x and each.grid_y = current_y));
+			current_x <- current_x + 1;
+		}
+		
+		current_x <- 25;
+		current_y <- 20;
+		loop times: (max_y - current_y) {
+			my_cells << one_of(cell where (each.grid_x = current_x and each.grid_y = current_y));
+			current_y <- current_y + 1;
+		}
+		
+		current_x <- 0;
+		current_y <- 16;
+		loop times: 16 {
+			my_cells << one_of(cell where (each.grid_x = current_x and each.grid_y = current_y));
+			current_x <- current_x + 1;
+		}
+		
+		ask my_cells {
+			color <- #black;
+			is_wall <- true;
+		}
+	}
+}	
 
 //Grid species to discretize space
 grid cell width: number_of_columns height: number_of_rows neighbors: 8 {
+	bool is_wall <- false;
 	bool has_object <- false;
 	bool has_person <- false;
-	bool is_wall <- false;
-	rgb color <- #white;
+	rgb color <- #grey;
 }
+
 
 species wall {
 	aspect default {
@@ -383,20 +448,12 @@ species sofa parent: object_base {
 
 // *** Experiments ***
 
-experiment personalservicerobot type: gui {
+experiment personalservicerobotnewapartmentconfig type: gui {
 	float minimum_cycle_duration <- 0.04;
+	
 	output {
-//		layout #split;
-//		display result { 
-//			chart "Result" type: series background: #white {
-//				data '#requests' value: no_total_requests color: #green;
-//				data '#fulfilled_requests' value: no_fulfilled_requests color: #red;
-//			}
-//		}
-		
 		display display1 type: opengl {
-			image "../images/floor.jpg";
-			species wall refresh: false;
+			grid cell lines: #black;
 			species service_robot aspect: image_aspect;
 			species robot_owner aspect: image_aspect;
 			species regular_person aspect: image_aspect;
