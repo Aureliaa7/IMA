@@ -8,14 +8,24 @@ model PersonalServiceRobot
 
 global {
 	file wall_shapefile <- shape_file("../includes/walls.shp");
-	int number_of_persons <- 2;
+	
+	int number_of_persons <- 4;
 	int number_of_columns <- 90;
 	int number_of_rows <- 90;
-	list<string> object_names <- ["notebook", "book"];
-	string requested_object_name;
-	point owner_location;
+	int no_notebooks <- 5;
+	int no_books <- 7;
 	int no_total_requests <- 0;
 	int no_fulfilled_requests <- 0;
+
+	list<string> object_names <- ["notebook", "book"];
+	
+	string requested_object_name;
+	
+	point owner_location;
+	
+	rgb book_color <- #blue;
+	rgb notebook_color <- #yellow;
+	
 	
 	geometry shape <- envelope(wall_shapefile);
 
@@ -26,14 +36,89 @@ global {
 			}
 		}
 		
-		create notebook;
-		create book;
+		create notebook number: no_notebooks;
+		create book number: no_books;
 		
 		create regular_person number: number_of_persons;
 		create service_robot;
 		create robot_owner;
-
 		
+		//TODO uncomment this line if you wanna run the 2nd experiment
+		//do create_walls();
+	}
+	
+	action create_walls {
+		list<my_cell> my_cells;
+		int current_y <- 0;
+		int current_x <- 0;
+		int max_x <- 39;
+		int max_y <- 39;
+		int i;
+
+		// first, color the borders
+		// the upper border
+		loop times: 40 {
+			my_cells << one_of(my_cell where (each.grid_x = current_x and each.grid_y = current_y));
+			current_x <- current_x + 1;
+		}
+		
+		// the left border
+		current_x <- 0;
+		current_y <- 0;
+		loop times: 40 {
+			my_cells << one_of(my_cell where (each.grid_x = current_x and each.grid_y = current_y));
+			current_y <- current_y + 1;
+		}
+		
+		// the right border
+		current_x <-max_x;
+		current_y <- 0;
+		loop times: 40 {
+			my_cells << one_of(my_cell where (each.grid_x = current_x and each.grid_y = current_y));
+			current_y <- current_y + 1;
+		}
+		
+		// the bottom border
+		current_x <- 0;
+		current_y <- max_y;
+		loop times: 40 {
+			my_cells << one_of(my_cell where (each.grid_x = current_x and each.grid_y = current_y));
+			current_x <- current_x + 1;
+		}
+		
+		current_x <- 19;
+		my_cells << one_of(my_cell where (each.grid_x = current_x and each.grid_y = 1));
+		my_cells << one_of(my_cell where (each.grid_x = current_x and each.grid_y = 2));
+		
+		current_y <- 6;
+		loop times: 10 {
+			my_cells << one_of(my_cell where (each.grid_x = current_x and each.grid_y = current_y));
+			current_y <- current_y + 1;
+		}
+		
+		loop times: (38 - current_y) {
+			my_cells << one_of(my_cell where (each.grid_x = current_x and each.grid_y = current_y));
+			current_x <- current_x + 1;
+		}
+		
+		current_x <- 25;
+		current_y <- 20;
+		loop times: (39 - current_y) {
+			my_cells << one_of(my_cell where (each.grid_x = current_x and each.grid_y = current_y));
+			current_y <- current_y + 1;
+		}
+		
+		current_x <- 0;
+		current_y <- 16;
+		loop times: 16 {
+			my_cells << one_of(my_cell where (each.grid_x = current_x and each.grid_y = current_y));
+			current_x <- current_x + 1;
+		}
+		
+		ask my_cells {
+			color <- #black;
+			is_wall <- true;
+		}
 	}
 }
 
@@ -53,6 +138,10 @@ species wall {
 }
 
 
+grid my_cell width: 40 height: 40 neighbors: 4 {
+	rgb color <- #white;
+	bool is_wall <- false;
+}
 
 // *** Base species ***
 
@@ -120,11 +209,13 @@ species service_robot parent: person {
 
 	init {
 		image_file image <- image_file("../images/robot3.png");
-		cell my_cell <- one_of(get_available_cells());
-		do initialize(5.0, image, nil, my_cell.location);
+		cell my_initial_cell <- one_of(get_available_cells());
+		do initialize(5.0, image, nil, my_initial_cell.location);
 	}
 	
 	reflex find_requested_object when: not is_requested_object_found and is_busy {
+		requested_obj <- nil;
+		
 		write "find_requested_object reflex...";
 		if requested_object_name = "book" {
 			requested_obj <- one_of(book where each.is_requested_by_person);
@@ -132,6 +223,7 @@ species service_robot parent: person {
 			requested_obj <- one_of(notebook where each.is_requested_by_person);
 		}
 		
+		write "find obj reflex--- requested_obj: " + requested_obj;
 		
 		if requested_obj != nil {
 			is_requested_object_found <- true;
@@ -141,9 +233,9 @@ species service_robot parent: person {
 
 
 	reflex get_requested_object when: is_requested_object_found and is_busy and not grabbed_object {
-		write "get_requested_object reflex...";
+		//write "get_requested_object reflex...";
 				
-		do goto target: object_location speed: 1.0 on: get_available_cells() recompute_path: false;
+		do goto target: object_location speed: 2.0 on: get_available_cells() recompute_path: false;
 		
 		if (self distance_to object_location) < 1.0 {
 			grabbed_object <- true;
@@ -154,24 +246,29 @@ species service_robot parent: person {
 	}
 	
 	reflex bring_requested_object when: grabbed_object and is_busy {
-		write "bring_requested_object reflex...";
-		write "bring_requested_object-- owner_location: " + owner_location;
+		//write "bring_requested_object reflex...";
+		//write "bring_requested_object-- owner_location: " + owner_location;
 		
-		do goto target: owner_location speed: 1.0 on: get_available_cells() recompute_path: false;
-		
-		if (self distance_to owner_location) < 1.0 {
-			ask requested_obj {
-				should_move <- false;
-				is_requested_by_person <- false;
-			}
+		if owner_location != nil and requested_obj != nil {
+			do goto target: owner_location speed: 2.0 on: get_available_cells() recompute_path: false;
 			
-			ask robot_owner {
-				is_waiting_for_object <- false;
+			if (self distance_to owner_location) < 1.0 {
+				ask requested_obj {
+					should_move <- false;
+					is_requested_by_person <- false;
+					location <- owner_location;
+				}
+				
+				ask robot_owner {
+					is_waiting_for_object <- false;
+				}
+				
+				// reset all the flags
+				grabbed_object <- false;
+				is_busy <- false;
+				is_requested_object_found <- false;
+				no_fulfilled_requests <- no_fulfilled_requests + 1;
 			}
-			
-			grabbed_object <- false;
-			is_busy <- false;
-			no_fulfilled_requests <- no_fulfilled_requests + 1;
 		}
 	}
 	
@@ -196,8 +293,11 @@ species robot_owner parent: person {
 	}
 	
 	reflex ask_for_object when: not is_waiting_for_object {
+		requested_object <- nil;
+		
 		requested_object <- ask_for_random_object();
 		if requested_object != nil {
+			write "ask_for_object-- requested obj != nil...";
 			ask requested_object {
 				is_requested_by_person <- true;
 			}
@@ -211,7 +311,7 @@ species robot_owner parent: person {
 		}	
 	}
 	
-	reflex basic_move when: every(60#cycle) {// when: not is_waiting_for_object {
+	reflex basic_move when: every(25#cycle) {// when: not is_waiting_for_object {
 		owner_location <- one_of(get_available_cells()).location;
 		location <- owner_location;
 	} 
@@ -242,9 +342,8 @@ species regular_person parent: person {
 		do initialize(5.2, image, nil, initial_location);
 	}
 
-	reflex basic_move when: every(20#cycles){
-		point my_cell <- one_of(get_available_cells()).location;
-		location <- my_cell.location;
+	reflex basic_move when: every(10#cycles){
+		location <- one_of(get_available_cells()).location;
 	}	
 }
 
@@ -252,7 +351,7 @@ species notebook parent: object_base {
 
 	init {
 		point my_location <- one_of(get_available_cells()).location;
-		do initialize(false, "notebook", rnd_color(255), my_location);
+		do initialize(false, "notebook", notebook_color, my_location);
 	}
 
 	aspect default {
@@ -264,7 +363,7 @@ species book parent: object_base {
 
 	init {
 		point my_location <-one_of(get_available_cells()).location;
-		do initialize(false, "book", rnd_color(255), my_location);
+		do initialize(false, "book", book_color, my_location);
 	}
 
 	aspect default {
@@ -295,6 +394,17 @@ experiment personalservicerobot type: gui {
 			species regular_person aspect: image_aspect;
 			species notebook aspect: default;
 			species book aspect: default;
+		}
+	}
+}
+
+// using the walls created by me
+experiment personalservicerobot2 type: gui {
+	float minimum_cycle_duration <- 0.04;
+	output {
+		
+		display display1 type: opengl {
+			grid my_cell lines: #black;
 		}
 	}
 }
