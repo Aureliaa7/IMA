@@ -11,6 +11,8 @@ global {
 	string bed_obj <- "bed";
 	string sofa_obj <- "sofa";
 	string table_obj <- "table";
+	string book_obj <- "book";
+	string notebook_obj <- "notebook";
 	
 	int number_of_persons <- 4;
 	int number_of_columns <- 40;
@@ -21,13 +23,11 @@ global {
 	int no_total_requests <- 0;
 	int no_fulfilled_requests <- 0;
 
-	list<string> object_names <- ["book"];
+	list<string> object_names <- [book_obj, notebook_obj];
 	
 	string requested_object_name;
 	// flag used to update the perceived location of the owner
-	bool owner_changed_location;
-	//object_base requested_object <- nil;
-	
+	bool owner_changed_location;	
 		
 	rgb book_color <- #blue;
 	rgb notebook_color <- #yellow;
@@ -246,7 +246,7 @@ species service_robot parent: person control: simple_bdi {
 	bool should_get_object;
 	object_base target_object;
 	float view_distance_owner <- 10.0;
-	bool should_move_randomly <- true;
+	bool should_look_for_object <- false;
 
 	init {
 		image_file image <- image_file("../images/robot3.png");
@@ -255,55 +255,46 @@ species service_robot parent: person control: simple_bdi {
 		do add_desire(wander); // just let the robot move randomly 
 	}
 	
-	perceive target: book in: view_distance {
-		//write "*** perceive req obj****";
+	perceive target: get_current_target_species() when: should_look_for_object in: view_distance {
+		write "*** perceive req obj****";
 		
 		// i want to perceive the book's location. That value will be saved with the id given by 'object_at_location'
 		if is_requested_by_person {
 			focus id: object_at_location var: location;
 			ask myself { do remove_intention(wander, false); }
-			//myself.should_move_randomly <- false;
+			myself.should_look_for_object <- false;
 		}
 		
 		
 	}
 	
 	perceive target: robot_owner when: is_requested_object_found in: view_distance {
-		//write "*** perceive robot owner ***";
+		write "*** perceive robot owner ***";
 		focus id: owner_at_location var:location;
-		//myself.owner_location <- self.location;
 		
-		//ask myself  { do remove_intention(find_owner_pred); }
-		
+		//TODO delete		
 		mental_state current_int <- get_current_intention_op(self);
 		write "current int: " + current_int;
 	}
 	
-	//rule belief: requested_object_pred new_desire: grab_object_pred;
 	rule belief: new_predicate(object_at_location) new_desire: grab_object_pred strength: 5;
 	rule belief: grab_object_pred new_desire: find_owner_pred strength: 4;
 	rule belief: new_predicate(owner_at_location) new_desire: go_to_owner strength: 3;
 	
 	
-//	reflex just_move when: should_move_randomly {
-//		write  "+++++++++++++  just_move....";
-//		do move_randomly;
-//	}
-	
 	plan just_wander intention: wander {
-		write "----- just wander...";
+		write "----- just wander...";  //TODO delete
 		do move_randomly;
 	}
 	
 	plan find_req_object intention: requested_object_pred {
-		//write "-----find-req-object plan....";
+		//write "-----find-req-object plan....";   //TODO delete
 		do move_randomly;
 	}
 	
 	plan go_and_grab_req_object intention: grab_object_pred when: should_get_object {
 		write "------- go_and_grab_requested_object plan ----";
 		
-		write "-------- go grab req obj---- should_move_randomly: " + should_move_randomly;
 		
 		//TODO clean
 		
@@ -311,18 +302,18 @@ species service_robot parent: person control: simple_bdi {
 			write "---- &&&---req obj location: " + object_location;
 			
 		//TODO delete
-		list<book> books <- book where (each != nil);
-		write "------------ gi grab obj----- books loc: ";
-		int i <- 0;
-			loop times: 7 {
-			write "book loc:   " + books[i].location;
-			i <- i +1;
-		}
+//		list<book> books <- book where (each != nil);
+//		write "------------ gi grab obj----- books loc: ";
+//		int i <- 0;
+//			loop times: 7 {
+//			write "book loc:   " + books[i].location;
+//			i <- i +1;
+//		}
 		
 		
 			
 		if object_location != nil {
-			list<object_base> target_objects <- book where (each.location=object_location and each.is_requested_by_person);
+			list<object_base> target_objects <- get_current_target_species() where (each.location=object_location and each.is_requested_by_person);
 			write "go grab obj--- target_objs : " + target_objects;
 			
 			target_object <- first(target_objects);
@@ -331,7 +322,6 @@ species service_robot parent: person control: simple_bdi {
 		}
 		
 		if target_object != nil {
-			should_move_randomly <- false;
 			do goto target: object_location speed: 2.0 on: get_available_cells() recompute_path: false;
 			
 			if (self distance_to target_object.location) < 1.0 {
@@ -346,7 +336,7 @@ species service_robot parent: person control: simple_bdi {
 	}
 	
 	plan find_owner intention: find_owner_pred when: owner_location = nil {
-		write "**** find_owner plan *****";
+		write "**** find_owner plan *****";  //TODO delete
 		
 		 list<point> points2 <- get_beliefs_with_name(owner_at_location) collect (point(get_predicate(mental_state (each)).values["location_value"]));
 			write "---- &&& perceive owner --- points2: " + points2;
@@ -396,10 +386,7 @@ species service_robot parent: person control: simple_bdi {
 				target_object <- nil;
 				owner_location <- nil;
 				object_location <- nil;
-					//should_move_randomly <- true;
-				
-				//do remove_intention(go_to_owner);
-				//do add_intention(requested_object_pred);
+				should_look_for_object <- false;
 			
 				do remove_belief(requested_object_pred);
 				do remove_belief(find_owner_pred);	
@@ -412,16 +399,20 @@ species service_robot parent: person control: simple_bdi {
 	}
 	
 	action move_randomly {
-		write "((((((( move_randomly action )))))))";
+		write "((((((( move_randomly action )))))))";   //TODO delete
 		cell available_cell <- one_of(get_available_cells());
 		do goto target: available_cell.location speed: 2.0 on: get_available_cells();
-		//location <- available_cell.location;
 	}
 	
-	//TODO delete
-	aspect image_aspect {
-		draw icon size: icon_size;
-		draw circle(view_distance) color: #blue border: #black depth:10 empty: true;
+	species<object_base> get_current_target_species {
+		switch requested_object_name {
+			match book_obj {
+				return book;
+			}
+			match notebook_obj {
+				return notebook;
+			}
+		}
 	}
 }
 
@@ -449,14 +440,15 @@ species robot_owner parent: person {
 				is_requested_object_found <- false;
 				owner_location <- nil;
 				should_get_object <- true;
+				should_look_for_object <- true;
 			}
 		}	
 	}
 	
-	reflex basic_move when: every(15#cycle) {// when: not is_waiting_for_object {
+	reflex basic_move when: every(15#cycle) {
 		point next_location <- one_of(get_available_cells()).location;
 			//TODO update the owner's location
-			find_owner_pred <- new_predicate(owner_at_location, ["location_value"::next_location]);
+		find_owner_pred <- new_predicate(owner_at_location, ["location_value"::next_location]);
 		write "======  move owner---  location: " + next_location;
 		
 		do goto target: next_location speed: 2.1 on: get_available_cells();
