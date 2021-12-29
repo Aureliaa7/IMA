@@ -38,12 +38,12 @@ global {
 	
 	// desires
 	predicate wander <- new_predicate("wander");
-	predicate grab_object_pred <- new_predicate("grab requested object");  // after identifying its coordinates
-	predicate find_owner_pred <- new_predicate(owner_at_location);
+	predicate grab_object <- new_predicate("grab requested object");
+	predicate find_owner <- new_predicate(owner_at_location);
 	predicate go_to_owner <- new_predicate("go to owner with requested object");
 	
 	// beliefs
-	predicate requested_object_pred <- new_predicate(object_at_location); // belief
+	predicate requested_object_pred <- new_predicate(object_at_location);
 	
 	
 	init {
@@ -109,7 +109,7 @@ global {
 		int max_x <- 39;
 		int max_y <- 39;
 	
-		// first, collect the borders
+		// first, collect the cells representing the borders
 		// the upper border
 		loop times: number_of_columns {
 			my_cells << one_of(cell where (each.grid_x = current_x and each.grid_y = current_y));
@@ -216,28 +216,39 @@ species person parent: species_base skills: [moving] {
 	}
 }
 
+
 species object_base parent: species_base {
 	bool is_requested_by_person;
 	string name;
 	rgb color;
 	bool should_move;
+	image_file icon;
 
-	action initialize (bool is_requested_object, string object_name, rgb object_color, point object_location) {
+	action initialize (bool is_requested_object, string object_name, rgb object_color, point object_location, image_file image <- nil) {
 		is_requested_by_person <- is_requested_object;
 		name <- object_name;
 		color <- object_color;
 		location <- object_location;
+		icon <- image;
 		ask cell overlapping self {
 			has_object <- true;
 		}
+	}
+	
+	action initialize_big_object(string object_name, image_file image) {
+		name <- object_name;
+		icon <- image;
 	}
 	
 	// as the robot moves to the owner with the found object, the object should also move
 	reflex move when:should_move {
 		location <- one_of(service_robot).location;
 	}
+	
+	aspect image_aspect {
+		draw icon size: 7;
+	}
 }
-
 
 // *** Derived species ***
 
@@ -248,7 +259,6 @@ species service_robot parent: person control: simple_bdi {
 	float view_distance <- 600.0;
 	bool should_get_object;
 	object_base target_object;
-	float view_distance_owner <- 10.0;
 	bool should_look_for_object <- false;
 
 	init {
@@ -258,25 +268,23 @@ species service_robot parent: person control: simple_bdi {
 		do add_desire(wander); // just let the robot move randomly 
 	}
 	
-	perceive target: get_current_target_species() when: should_look_for_object in: view_distance {
-		write "*** perceive req obj****";
-		
+	perceive target: get_current_target_species() when: should_look_for_object in: view_distance {		
 		// i want to perceive the requested object's location. That value will be saved with the id given by 'object_at_location'
 		if is_requested_by_person {
 			focus id: object_at_location var: location;
-			ask myself { do remove_intention(wander, false); }
+			ask myself { 
+				do remove_intention(wander, false);
+			}
 			myself.should_look_for_object <- false;
 		}
-		
-		
 	}
 	
 	perceive target: robot_owner when: is_requested_object_found in: view_distance {
 		focus id: owner_at_location var:location;
 	}
 	
-	rule belief: new_predicate(object_at_location) new_desire: grab_object_pred strength: 5;
-	rule belief: grab_object_pred new_desire: find_owner_pred strength: 4;
+	rule belief: new_predicate(object_at_location) new_desire: grab_object strength: 5;
+	rule belief: grab_object new_desire: find_owner strength: 4;
 	rule belief: new_predicate(owner_at_location) new_desire: go_to_owner strength: 3;
 	
 	
@@ -288,7 +296,7 @@ species service_robot parent: person control: simple_bdi {
 		do move_randomly;
 	}
 	
-	plan go_and_grab_req_object intention: grab_object_pred when: should_get_object {	
+	plan go_and_grab_req_object intention: grab_object when: should_get_object {	
 		 object_location <- point(get_predicate(get_belief_with_name(object_at_location)).values["location_value"]);
 					
 		if object_location != nil {
@@ -305,12 +313,12 @@ species service_robot parent: person control: simple_bdi {
 				}
 				is_requested_object_found <- true;
 				should_get_object <- false;
-				do add_desire(find_owner_pred);
+				do add_desire(find_owner);
 			}
 		}
 	}
 	
-	plan find_owner intention: find_owner_pred when: owner_location = nil {
+	plan find_owner intention: find_owner when: owner_location = nil {
 		do move_randomly();
 	}
 	
@@ -342,9 +350,9 @@ species service_robot parent: person control: simple_bdi {
 				should_look_for_object <- false;
 			
 				do remove_belief(requested_object_pred);
-				do remove_belief(find_owner_pred);	
+				do remove_belief(find_owner);	
 				do remove_intention(go_to_owner, true);
-				do remove_intention(grab_object_pred, true);
+				do remove_intention(grab_object, true);
 				do add_desire(wander);
 			}
 		}
@@ -377,7 +385,6 @@ species robot_owner parent: person {
 	}
 	
 	reflex ask_for_object when: not is_waiting_for_object {
-		
 		object_base requested_object <- get_random_object();
 		if requested_object != nil {
 			ask requested_object {
@@ -396,15 +403,14 @@ species robot_owner parent: person {
 		}	
 	}
 	
-	reflex basic_move when: every(30#cycle) {
+	reflex basic_move when: every(20#cycle) {
 		point next_location <- one_of(get_available_cells()).location;
 		
 		// once the robot owner changes the location, the robot's belief referring to that location should also be updated	
 		service_robot robot <- one_of(service_robot);
 		ask robot {
-			do remove_belief(find_owner_pred);
+			do remove_belief(find_owner);
 			do add_belief(new_predicate(owner_at_location, ["location_value"::next_location]));
-			
 		}
 		location <- next_location;
 	} 
@@ -414,9 +420,9 @@ species robot_owner parent: person {
 		requested_object_name <- one_of(object_names);
 		object_base object;
 		
-		if requested_object_name = "book" {
+		if requested_object_name = book_obj {
 			object <- one_of(book);
- 		} else if requested_object_name = "notebook" {
+ 		} else if requested_object_name = notebook_obj {
  			object <- one_of(notebook);
  		}
  		write "^^^^^ get_random_object--- object: " + object;
@@ -433,7 +439,7 @@ species regular_person parent: person {
 		do initialize(5.2, image, nil, initial_location);
 	}
 
-	reflex basic_move when: every(10#cycles){
+	reflex basic_move when: every(7#cycles){
 		location <- one_of(get_available_cells()).location;
 	}	
 }
@@ -441,7 +447,7 @@ species regular_person parent: person {
 species notebook parent: object_base {
 	init {
 		point my_location <- one_of(get_available_cells()).location;
-		do initialize(false, "notebook", notebook_color, my_location);
+		do initialize(false, notebook_obj, notebook_color, my_location);
 	}
 
 	aspect default {
@@ -452,7 +458,7 @@ species notebook parent: object_base {
 species book parent: object_base {
 	init {
 		point my_location <-one_of(get_available_cells()).location;
-		do initialize(false, "book", book_color, my_location);
+		do initialize(false, book_obj, book_color, my_location);
 	}
 
 	aspect default {
@@ -464,12 +470,7 @@ species closet parent: object_base {
 	image_file icon <- image_file("../images/closet.png");
 	
 	init {
-		is_requested_by_person <- false;
-		name <- closet_obj;		
-	}
-	
-	aspect image_aspect {
-		draw icon size: 7;
+		do initialize_big_object(closet_obj, icon);		
 	}
 }
 
@@ -477,12 +478,7 @@ species bed parent: object_base {
 	image_file icon <- image_file("../images/bed.png");
 	
 	init {
-		is_requested_by_person <- false;
-		name <- bed_obj;		
-	}
-	
-	aspect image_aspect {
-		draw icon size: 8;
+		do initialize_big_object(bed_obj, icon);			
 	}
 }
 
@@ -490,25 +486,15 @@ species table parent: object_base {
 	image_file icon <- image_file("../images/table.png");
 	
 	init {
-		is_requested_by_person <- false;
-		name <- table_obj;		
-	}
-	
-	aspect image_aspect {
-		draw icon size: 8;
+		do initialize_big_object(table_obj, icon);			
 	}
 }
 
 species sofa parent: object_base {
 	image_file icon <- image_file("../images/sofa.png");
-	
+		
 	init {
-		is_requested_by_person <- false;
-		name <- sofa_obj;		
-	}
-	
-	aspect image_aspect {
-		draw icon size: 8;
+		do initialize_big_object(sofa_obj, icon);			
 	}
 }
 

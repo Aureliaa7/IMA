@@ -97,7 +97,6 @@ global {
 	}
 }
 
-//Grid species to discretize space
 grid cell width: number_of_columns height: number_of_rows neighbors: 8 {
 	bool has_object <- false;
 	bool has_person <- false;
@@ -197,8 +196,7 @@ species service_robot parent: person {
 	}
 
 
-	reflex get_requested_object when: is_requested_object_found and is_busy and not grabbed_object {
-				
+	reflex get_requested_object when: is_requested_object_found and is_busy and not grabbed_object {		
 		do goto target: object_location speed: 2.0 on: get_available_cells() recompute_path: false;
 		
 		if (self distance_to object_location) < 1.0 {
@@ -240,7 +238,6 @@ species service_robot parent: person {
 }
 
 species robot_owner parent: person {
-
 	object_base requested_object <- nil;
 	bool is_waiting_for_object <- false;
 
@@ -292,7 +289,6 @@ species robot_owner parent: person {
 }
 
 species regular_person parent: person {
-
 	init {
 		image_file image <- image_file("../images/person1.png");
 		point initial_location <- one_of(get_available_cells()).location;
@@ -305,7 +301,6 @@ species regular_person parent: person {
 }
 
 species notebook parent: object_base {
-
 	init {
 		point my_location <- one_of(get_available_cells()).location;
 		do initialize(false, "notebook", notebook_color, my_location);
@@ -317,7 +312,6 @@ species notebook parent: object_base {
 }
 
 species book parent: object_base {
-
 	init {
 		point my_location <-one_of(get_available_cells()).location;
 		do initialize(false, "book", book_color, my_location);

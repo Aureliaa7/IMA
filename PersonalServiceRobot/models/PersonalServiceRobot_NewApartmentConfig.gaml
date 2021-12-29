@@ -11,6 +11,8 @@ global {
 	string bed_obj <- "bed";
 	string sofa_obj <- "sofa";
 	string table_obj <- "table";
+	string book_obj <- "book";
+	string notebook_obj <- "notebook";
 	
 	int number_of_persons <- 4;
 	int number_of_columns <- 40;
@@ -21,7 +23,7 @@ global {
 	int no_total_requests <- 0;
 	int no_fulfilled_requests <- 0;
 
-	list<string> object_names <- ["notebook", "book"];
+	list<string> object_names <- [notebook_obj, book_obj];
 	
 	string requested_object_name;
 	
@@ -94,7 +96,6 @@ global {
 		int max_x <- 39;
 		int max_y <- 39;
 	
-		// first, color the borders
 		// the upper border
 		loop times: number_of_columns {
 			my_cells << one_of(cell where (each.grid_x = current_x and each.grid_y = current_y));
@@ -161,7 +162,6 @@ global {
 	}
 }	
 
-//Grid species to discretize space
 grid cell width: number_of_columns height: number_of_rows neighbors: 8 {
 	bool is_wall <- false;
 	bool has_object <- false;
@@ -179,7 +179,6 @@ species wall {
 // *** Base species ***
 
 species species_base {
-	
 	list<cell> get_available_cells {
 		list<cell> available_cells <- cell where not (each.is_wall or each.has_person);
 		remove cell where each.has_object from: available_cells ;
@@ -249,9 +248,9 @@ species service_robot parent: person {
 	reflex find_requested_object when: not is_requested_object_found and is_busy {
 		requested_obj <- nil;
 		
-		if requested_object_name = "book" {
+		if requested_object_name = book_obj {
 			requested_obj <- one_of(book where each.is_requested_by_person);
-		} else if requested_object_name = "notebook" {
+		} else if requested_object_name = notebook_obj {
 			requested_obj <- one_of(notebook where each.is_requested_by_person);
 		}
 				
@@ -333,7 +332,7 @@ species robot_owner parent: person {
 		}	
 	}
 	
-	reflex basic_move when: every(25#cycle) {// when: not is_waiting_for_object {
+	reflex basic_move when: every(25#cycle) {
 		owner_location <- one_of(get_available_cells()).location;
 		location <- owner_location;
 	} 
@@ -344,12 +343,10 @@ species robot_owner parent: person {
 		write "requested_object_name: " + requested_object_name;
 		object_base object;
 		
-		if requested_object_name = "book" {
+		if requested_object_name = book_obj {
 			object <- one_of(book);
-			write "object: " + object;
- 		} else if requested_object_name = "notebook" {
+ 		} else if requested_object_name = notebook_obj {
  			object <- one_of(notebook);
- 			write "object: " + object;
  		}
  		
  		return object;
@@ -370,7 +367,6 @@ species regular_person parent: person {
 }
 
 species notebook parent: object_base {
-
 	init {
 		point my_location <- one_of(get_available_cells()).location;
 		do initialize(false, "notebook", notebook_color, my_location);
@@ -382,7 +378,6 @@ species notebook parent: object_base {
 }
 
 species book parent: object_base {
-
 	init {
 		point my_location <-one_of(get_available_cells()).location;
 		do initialize(false, "book", book_color, my_location);
