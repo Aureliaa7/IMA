@@ -24,14 +24,9 @@ global {
 	int no_fulfilled_requests <- 0;
 
 	list<string> object_names <- [notebook_obj, book_obj];
-	
 	string requested_object_name;
-	
 	point owner_location;
-	
-	rgb book_color <- #blue;
-	rgb notebook_color <- #yellow;
-	
+
 	
 	init {
 		do create_apartment_configuration();
@@ -98,7 +93,7 @@ global {
 	
 		// the upper border
 		loop times: number_of_columns {
-			my_cells << one_of(cell where (each.grid_x = current_x and each.grid_y = current_y));
+			my_cells << get_cell(current_x, current_y);
 			current_x <- current_x + 1;
 		}
 		
@@ -106,7 +101,7 @@ global {
 		current_x <- 0;
 		current_y <- 0;
 		loop times: number_of_rows {
-			my_cells << one_of(cell where (each.grid_x = current_x and each.grid_y = current_y));
+			my_cells << get_cell(current_x, current_y);
 			current_y <- current_y + 1;
 		}
 		
@@ -114,7 +109,7 @@ global {
 		current_x <-max_x;
 		current_y <- 0;
 		loop times: number_of_rows {
-			my_cells << one_of(cell where (each.grid_x = current_x and each.grid_y = current_y));
+			my_cells << get_cell(current_x, current_y);
 			current_y <- current_y + 1;
 		}
 		
@@ -122,36 +117,68 @@ global {
 		current_x <- 0;
 		current_y <- max_y;
 		loop times: number_of_columns {
-			my_cells << one_of(cell where (each.grid_x = current_x and each.grid_y = current_y));
+			my_cells << get_cell(current_x, current_y);
 			current_x <- current_x + 1;
 		}
 		
 		current_x <- 19;
-		my_cells << one_of(cell where (each.grid_x = current_x and each.grid_y = 1));
-		my_cells << one_of(cell where (each.grid_x = current_x and each.grid_y = 2));
+		my_cells << get_cell(current_x, 1);
+		my_cells << get_cell(current_x, 2);
 		
 		current_y <- 6;
 		loop times: 10 {
-			my_cells << one_of(cell where (each.grid_x = current_x and each.grid_y = current_y));
+			my_cells << get_cell(current_x, current_y);
 			current_y <- current_y + 1;
 		}
 		
 		loop times: (38 - current_y) {
-			my_cells << one_of(cell where (each.grid_x = current_x and each.grid_y = current_y));
+			my_cells << get_cell(current_x, current_y);
 			current_x <- current_x + 1;
 		}
 		
 		current_x <- 25;
 		current_y <- 20;
 		loop times: (max_y - current_y) {
-			my_cells << one_of(cell where (each.grid_x = current_x and each.grid_y = current_y));
+			my_cells << get_cell(current_x, current_y);
 			current_y <- current_y + 1;
 		}
 		
 		current_x <- 0;
 		current_y <- 16;
 		loop times: 16 {
-			my_cells << one_of(cell where (each.grid_x = current_x and each.grid_y = current_y));
+			my_cells << get_cell(current_x, current_y);
+			current_x <- current_x + 1;
+		}
+		
+		current_x <- 18;
+		current_y <- 20;
+		loop times: 7 {
+			my_cells << get_cell(current_x, current_y);
+			current_x <- current_x + 1;
+		}
+		
+		current_x <- 18;
+		loop times: 9 {
+			my_cells << get_cell(current_x, current_y);
+			current_y <- current_y + 1;
+		}
+		
+		current_x <- 10;
+		loop times: 9 {
+			my_cells << get_cell(current_x, current_y);
+			current_x <- current_x + 1;
+		}
+		
+		current_x <- 10;
+		loop times: 7 {
+			my_cells << get_cell(current_x, current_y);
+			current_y <- current_y + 1;
+		}
+		
+		current_x <- 26;
+		current_y <- 27;
+		loop times: 8 {
+			my_cells << get_cell(current_x, current_y);
 			current_x <- current_x + 1;
 		}
 		
@@ -160,21 +187,19 @@ global {
 			is_wall <- true;
 		}
 	}
+	
+	cell get_cell(int x, int y) {
+		return one_of(cell where (each.grid_x = x and each.grid_y = y));
+	}
 }	
 
-grid cell width: number_of_columns height: number_of_rows neighbors: 8 {
+grid cell width: number_of_columns height: number_of_rows neighbors: 4 {
 	bool is_wall <- false;
 	bool has_object <- false;
 	bool has_person <- false;
 	rgb color <- #grey;
 }
 
-
-species wall {
-	aspect default {
-		draw shape color: #black depth: 1.2;
-	}
-}
 
 // *** Base species ***
 
@@ -212,6 +237,7 @@ species object_base parent: species_base {
 	string name;
 	rgb color;
 	bool should_move;
+	image_file icon;
 
 	action initialize (bool is_requested_object, string object_name, rgb object_color, point object_location) {
 		is_requested_by_person <- is_requested_object;
@@ -223,9 +249,22 @@ species object_base parent: species_base {
 		}
 	}
 	
+	action initialize_big_object(string object_name, image_file image) {
+		name <- object_name;
+		icon <- image;
+	}
+	
 	// as the robot moves to the owner with the found object, the object should also move
 	reflex move when:should_move {
 		location <- one_of(service_robot).location;
+	}
+	
+	aspect image_aspect {
+		draw icon size: 7;
+	}
+	
+	aspect default {
+		draw rectangle(1, 2) color: color;
 	}
 }
 
@@ -262,7 +301,6 @@ species service_robot parent: person {
 
 
 	reflex get_requested_object when: is_requested_object_found and is_busy and not grabbed_object {
-				
 		do goto target: object_location speed: 2.0 on: get_available_cells() recompute_path: false;
 		
 		if (self distance_to object_location) < 1.0 {
@@ -285,7 +323,7 @@ species service_robot parent: person {
 				}
 				
 				ask robot_owner {
-					is_waiting_for_object <- false;
+					should_receive_object <- false;
 				}
 				
 				// reset all the flags
@@ -304,9 +342,8 @@ species service_robot parent: person {
 }
 
 species robot_owner parent: person {
-
 	object_base requested_object <- nil;
-	bool is_waiting_for_object <- false;
+	bool should_receive_object <- false;
 
 	init {
 		image_file image <- image_file("../images/robot_owner.png");
@@ -314,7 +351,7 @@ species robot_owner parent: person {
 		do initialize(5.0, image, nil, owner_location);
 	}
 	
-	reflex ask_for_object when: not is_waiting_for_object {
+	reflex ask_for_object when: not should_receive_object {
 		requested_object <- nil;
 		
 		requested_object <- get_random_object();
@@ -323,7 +360,7 @@ species robot_owner parent: person {
 				is_requested_by_person <- true;
 			}
 			
-			is_waiting_for_object <- true;
+			should_receive_object <- true;
 			
 			service_robot robot <- one_of(service_robot);
 			ask robot {
@@ -354,7 +391,6 @@ species robot_owner parent: person {
 }
 
 species regular_person parent: person {
-
 	init {
 		image_file image <- image_file("../images/person1.png");
 		point initial_location <- one_of(get_available_cells()).location;
@@ -367,37 +403,28 @@ species regular_person parent: person {
 }
 
 species notebook parent: object_base {
+	rgb notebook_color <- #yellow;
+	
 	init {
 		point my_location <- one_of(get_available_cells()).location;
-		do initialize(false, "notebook", notebook_color, my_location);
-	}
-
-	aspect default {
-		draw rectangle(1, 2) color: color;
+		do initialize(false, notebook_obj, notebook_color, my_location);
 	}
 }
 
 species book parent: object_base {
+	rgb book_color <- #blue;
+	
 	init {
 		point my_location <-one_of(get_available_cells()).location;
-		do initialize(false, "book", book_color, my_location);
-	}
-
-	aspect default {
-		draw rectangle(1, 2) color: color;
-	}
+		do initialize(false, book_obj, book_color, my_location);
+	}	
 }
 
 species closet parent: object_base {
 	image_file icon <- image_file("../images/closet.png");
 	
 	init {
-		is_requested_by_person <- false;
-		name <- closet_obj;		
-	}
-	
-	aspect image_aspect {
-		draw icon size: 7;
+		do initialize_big_object(closet_obj, icon);		
 	}
 }
 
@@ -405,12 +432,7 @@ species bed parent: object_base {
 	image_file icon <- image_file("../images/bed.png");
 	
 	init {
-		is_requested_by_person <- false;
-		name <- bed_obj;		
-	}
-	
-	aspect image_aspect {
-		draw icon size: 8;
+		do initialize_big_object(bed_obj, icon);			
 	}
 }
 
@@ -418,25 +440,15 @@ species table parent: object_base {
 	image_file icon <- image_file("../images/table.png");
 	
 	init {
-		is_requested_by_person <- false;
-		name <- table_obj;		
-	}
-	
-	aspect image_aspect {
-		draw icon size: 8;
+		do initialize_big_object(table_obj, icon);			
 	}
 }
 
 species sofa parent: object_base {
 	image_file icon <- image_file("../images/sofa.png");
-	
+		
 	init {
-		is_requested_by_person <- false;
-		name <- sofa_obj;		
-	}
-	
-	aspect image_aspect {
-		draw icon size: 8;
+		do initialize_big_object(sofa_obj, icon);			
 	}
 }
 
@@ -448,7 +460,7 @@ experiment personalservicerobotnewapartmentconfig type: gui {
 	
 	output {
 		display display1 type: opengl {
-			grid cell lines: #black;
+			grid cell lines: #black;			
 			species service_robot aspect: image_aspect;
 			species robot_owner aspect: image_aspect;
 			species regular_person aspect: image_aspect;

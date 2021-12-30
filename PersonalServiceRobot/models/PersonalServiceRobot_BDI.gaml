@@ -14,7 +14,6 @@ global {
 	string book_obj <- "book";
 	string notebook_obj <- "notebook";
 		
-	
 	int number_of_persons <- 4;
 	int number_of_columns <- 40;
 	int number_of_rows <- 40;
@@ -25,14 +24,9 @@ global {
 	int no_fulfilled_requests <- 0;
 
 	list<string> object_names <- [book_obj, notebook_obj];
-	
 	string requested_object_name;
 	// flag used to update the perceived location of the owner
 	bool owner_changed_location;	
-		
-	rgb book_color <- #blue;
-	rgb notebook_color <- #yellow;
-	
 	
 	string object_at_location <- "object at location";
 	string owner_at_location <- "owner at location";
@@ -110,10 +104,9 @@ global {
 		int max_x <- 39;
 		int max_y <- 39;
 	
-		// first, collect the cells representing the borders
 		// the upper border
 		loop times: number_of_columns {
-			my_cells << one_of(cell where (each.grid_x = current_x and each.grid_y = current_y));
+			my_cells << get_cell(current_x, current_y);
 			current_x <- current_x + 1;
 		}
 		
@@ -121,7 +114,7 @@ global {
 		current_x <- 0;
 		current_y <- 0;
 		loop times: number_of_rows {
-			my_cells << one_of(cell where (each.grid_x = current_x and each.grid_y = current_y));
+			my_cells << get_cell(current_x, current_y);
 			current_y <- current_y + 1;
 		}
 		
@@ -129,7 +122,7 @@ global {
 		current_x <-max_x;
 		current_y <- 0;
 		loop times: number_of_rows {
-			my_cells << one_of(cell where (each.grid_x = current_x and each.grid_y = current_y));
+			my_cells << get_cell(current_x, current_y);
 			current_y <- current_y + 1;
 		}
 		
@@ -137,36 +130,68 @@ global {
 		current_x <- 0;
 		current_y <- max_y;
 		loop times: number_of_columns {
-			my_cells << one_of(cell where (each.grid_x = current_x and each.grid_y = current_y));
+			my_cells << get_cell(current_x, current_y);
 			current_x <- current_x + 1;
 		}
 		
 		current_x <- 19;
-		my_cells << one_of(cell where (each.grid_x = current_x and each.grid_y = 1));
-		my_cells << one_of(cell where (each.grid_x = current_x and each.grid_y = 2));
+		my_cells << get_cell(current_x, 1);
+		my_cells << get_cell(current_x, 2);
 		
 		current_y <- 6;
 		loop times: 10 {
-			my_cells << one_of(cell where (each.grid_x = current_x and each.grid_y = current_y));
+			my_cells << get_cell(current_x, current_y);
 			current_y <- current_y + 1;
 		}
 		
 		loop times: (38 - current_y) {
-			my_cells << one_of(cell where (each.grid_x = current_x and each.grid_y = current_y));
+			my_cells << get_cell(current_x, current_y);
 			current_x <- current_x + 1;
 		}
 		
 		current_x <- 25;
 		current_y <- 20;
 		loop times: (max_y - current_y) {
-			my_cells << one_of(cell where (each.grid_x = current_x and each.grid_y = current_y));
+			my_cells << get_cell(current_x, current_y);
 			current_y <- current_y + 1;
 		}
 		
 		current_x <- 0;
 		current_y <- 16;
 		loop times: 16 {
-			my_cells << one_of(cell where (each.grid_x = current_x and each.grid_y = current_y));
+			my_cells << get_cell(current_x, current_y);
+			current_x <- current_x + 1;
+		}
+		
+		current_x <- 18;
+		current_y <- 20;
+		loop times: 7 {
+			my_cells << get_cell(current_x, current_y);
+			current_x <- current_x + 1;
+		}
+		
+		current_x <- 18;
+		loop times: 9 {
+			my_cells << get_cell(current_x, current_y);
+			current_y <- current_y + 1;
+		}
+		
+		current_x <- 10;
+		loop times: 9 {
+			my_cells << get_cell(current_x, current_y);
+			current_x <- current_x + 1;
+		}
+		
+		current_x <- 10;
+		loop times: 7 {
+			my_cells << get_cell(current_x, current_y);
+			current_y <- current_y + 1;
+		}
+		
+		current_x <- 26;
+		current_y <- 27;
+		loop times: 8 {
+			my_cells << get_cell(current_x, current_y);
 			current_x <- current_x + 1;
 		}
 		
@@ -174,6 +199,10 @@ global {
 			color <- #black;
 			is_wall <- true;
 		}
+	}
+	
+	cell get_cell(int x, int y) {
+		return one_of(cell where (each.grid_x = x and each.grid_y = y));
 	}
 }	
 
@@ -188,7 +217,6 @@ grid cell width: number_of_columns height: number_of_rows neighbors: 4 {
 // *** Base species ***
 
 species species_base {
-	
 	list<cell> get_available_cells {
 		list<cell> available_cells <- cell where not (each.is_wall or each.has_person);
 		remove cell where each.has_object from: available_cells ;
@@ -272,7 +300,8 @@ species service_robot parent: person control: simple_bdi {
 	}
 	
 	perceive target: get_current_target_species() when: should_look_for_object in: perception_distance {		
-		// i want to perceive the requested object's location. That value will be saved with the id given by 'object_at_location'
+		// i want to perceive the requested object's location. 
+		// That value will be saved with the id given by 'object_at_location'
 		if is_requested_by_person {
 			focus id: object_at_location var: location;
 			ask myself { 
@@ -350,7 +379,7 @@ species service_robot parent: person control: simple_bdi {
 				}
 				
 				ask robot_owner {
-					is_waiting_for_object <- false;
+					should_receive_object <- false;
 				}
 				
 				// reset all the flags and necessary variables
@@ -396,7 +425,7 @@ species service_robot parent: person control: simple_bdi {
 }
 
 species robot_owner parent: person {
-	bool is_waiting_for_object <- false;
+	bool should_receive_object <- false;
 
 	init {
 		image_file image <- image_file("../images/robot_owner.png");
@@ -404,14 +433,14 @@ species robot_owner parent: person {
 		do initialize(5.0, image, nil, initial_location);
 	}
 	
-	reflex ask_for_object when: not is_waiting_for_object {
+	reflex ask_for_object when: not should_receive_object {
 		object_base requested_object <- get_random_object();
 		if requested_object != nil {
 			ask requested_object {
 				is_requested_by_person <- true;
 			}
 			
-			is_waiting_for_object <- true;
+			should_receive_object <- true;
 			
 			service_robot robot <- one_of(service_robot);
 			ask robot {
@@ -465,6 +494,8 @@ species regular_person parent: person {
 }
 
 species notebook parent: object_base {
+	rgb notebook_color <- #yellow;
+	
 	init {
 		point my_location <- one_of(get_available_cells()).location;
 		do initialize(false, notebook_obj, notebook_color, my_location);
@@ -476,6 +507,8 @@ species notebook parent: object_base {
 }
 
 species book parent: object_base {
+	rgb book_color <- #blue;
+	
 	init {
 		point my_location <-one_of(get_available_cells()).location;
 		do initialize(false, book_obj, book_color, my_location);

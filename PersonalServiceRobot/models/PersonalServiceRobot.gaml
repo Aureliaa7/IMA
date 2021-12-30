@@ -13,6 +13,8 @@ global {
 	string bed_obj <- "bed";
 	string sofa_obj <- "sofa";
 	string table_obj <- "table";
+	string book_obj <- "book";
+	string notebook_obj <- "notebook"; 
 	
 	int number_of_persons <- 4;
 	int number_of_columns <- 90;
@@ -23,15 +25,9 @@ global {
 	int no_total_requests <- 0;
 	int no_fulfilled_requests <- 0;
 
-	list<string> object_names <- ["notebook", "book"];
-	
+	list<string> object_names <- [notebook_obj, book_obj];
 	string requested_object_name;
-	
 	point owner_location;
-	
-	rgb book_color <- #blue;
-	rgb notebook_color <- #yellow;
-	
 	
 	geometry shape <- envelope(wall_shapefile);
 
@@ -56,7 +52,6 @@ global {
 		create regular_person number: number_of_persons;
 		create service_robot;
 		create robot_owner;
-
 	}
 	
 	action create_object(point object_location, string object_name) {
@@ -147,6 +142,7 @@ species object_base parent: species_base {
 	string name;
 	rgb color;
 	bool should_move;
+	image_file icon;
 
 	action initialize (bool is_requested_object, string object_name, rgb object_color, point object_location) {
 		is_requested_by_person <- is_requested_object;
@@ -161,6 +157,19 @@ species object_base parent: species_base {
 	// as the robot moves to the owner with the found object, the object should also move
 	reflex move when:should_move {
 		location <- one_of(service_robot).location;
+	}
+	
+	action initialize_big_object(string object_name, image_file image) {
+		name <- object_name;
+		icon <- image;
+	}
+	
+	aspect image_aspect {
+		draw icon size: 7;
+	}
+	
+	aspect default {
+		draw rectangle(1, 2) color: color;
 	}
 }
 
@@ -183,9 +192,9 @@ species service_robot parent: person {
 	reflex find_requested_object when: not is_requested_object_found and is_busy {
 		requested_obj <- nil;
 		
-		if requested_object_name = "book" {
+		if requested_object_name = book_obj {
 			requested_obj <- one_of(book where each.is_requested_by_person);
-		} else if requested_object_name = "notebook" {
+		} else if requested_object_name = notebook_obj {
 			requested_obj <- one_of(notebook where each.is_requested_by_person);
 		}
 				
@@ -207,7 +216,16 @@ species service_robot parent: person {
 		}
 	}
 	
-	reflex bring_requested_object when: grabbed_object and is_busy {		
+	reflex bring_requested_object when: grabbed_object and is_busy {
+		if owner_location = nil {
+			owner_location <- (one_of(owner_location)).location;
+		}
+		
+		if requested_obj = nil {
+			is_requested_object_found <- false;
+			grabbed_object <- false;
+		}
+			
 		if owner_location != nil and requested_obj != nil {
 			do goto target: owner_location speed: 2.0 on: get_available_cells() recompute_path: false;
 			
@@ -219,7 +237,7 @@ species service_robot parent: person {
 				}
 				
 				ask robot_owner {
-					is_waiting_for_object <- false;
+					should_receive_object <- false;
 				}
 				
 				// reset all the flags
@@ -228,7 +246,7 @@ species service_robot parent: person {
 				is_requested_object_found <- false;
 				no_fulfilled_requests <- no_fulfilled_requests + 1;
 			}
-		}
+		}	
 	}
 	
 	reflex basic_move when: not is_busy {		
@@ -239,7 +257,7 @@ species service_robot parent: person {
 
 species robot_owner parent: person {
 	object_base requested_object <- nil;
-	bool is_waiting_for_object <- false;
+	bool should_receive_object <- false;
 
 	init {
 		image_file image <- image_file("../images/robot_owner.png");
@@ -247,7 +265,7 @@ species robot_owner parent: person {
 		do initialize(5.0, image, nil, owner_location);
 	}
 	
-	reflex ask_for_object when: not is_waiting_for_object {
+	reflex ask_for_object when: not should_receive_object {
 		requested_object <- nil;
 		
 		requested_object <- get_random_object();
@@ -256,7 +274,7 @@ species robot_owner parent: person {
 				is_requested_by_person <- true;
 			}
 			
-			is_waiting_for_object <- true;
+			should_receive_object <- true;
 			
 			service_robot robot <- one_of(service_robot);
 			ask robot {
@@ -265,7 +283,7 @@ species robot_owner parent: person {
 		}	
 	}
 	
-	reflex basic_move when: every(25#cycle) {// when: not is_waiting_for_object {
+	reflex basic_move when: every(25#cycle) {
 		owner_location <- one_of(get_available_cells()).location;
 		location <- owner_location;
 	} 
@@ -276,12 +294,10 @@ species robot_owner parent: person {
 		write "requested_object_name: " + requested_object_name;
 		object_base object;
 		
-		if requested_object_name = "book" {
+		if requested_object_name = book_obj {
 			object <- one_of(book);
-			write "object: " + object;
- 		} else if requested_object_name = "notebook" {
+ 		} else if requested_object_name = notebook_obj {
  			object <- one_of(notebook);
- 			write "object: " + object;
  		}
  		
  		return object;
@@ -301,37 +317,28 @@ species regular_person parent: person {
 }
 
 species notebook parent: object_base {
+	rgb notebook_color <- #yellow;
+	
 	init {
 		point my_location <- one_of(get_available_cells()).location;
-		do initialize(false, "notebook", notebook_color, my_location);
-	}
-
-	aspect default {
-		draw rectangle(1, 2) color: color;
+		do initialize(false, notebook_obj, notebook_color, my_location);
 	}
 }
 
 species book parent: object_base {
+	rgb book_color <- #blue;
+	
 	init {
 		point my_location <-one_of(get_available_cells()).location;
-		do initialize(false, "book", book_color, my_location);
-	}
-
-	aspect default {
-		draw rectangle(1, 2) color: color;
-	}
+		do initialize(false, book_obj, book_color, my_location);
+	}	
 }
 
 species closet parent: object_base {
 	image_file icon <- image_file("../images/closet.png");
 	
 	init {
-		is_requested_by_person <- false;
-		name <- closet_obj;		
-	}
-	
-	aspect image_aspect {
-		draw icon size: 7;
+		do initialize_big_object(closet_obj, icon);		
 	}
 }
 
@@ -339,12 +346,7 @@ species bed parent: object_base {
 	image_file icon <- image_file("../images/bed.png");
 	
 	init {
-		is_requested_by_person <- false;
-		name <- bed_obj;		
-	}
-	
-	aspect image_aspect {
-		draw icon size: 8;
+		do initialize_big_object(bed_obj, icon);			
 	}
 }
 
@@ -352,28 +354,17 @@ species table parent: object_base {
 	image_file icon <- image_file("../images/table.png");
 	
 	init {
-		is_requested_by_person <- false;
-		name <- table_obj;		
-	}
-	
-	aspect image_aspect {
-		draw icon size: 8;
+		do initialize_big_object(table_obj, icon);			
 	}
 }
 
 species sofa parent: object_base {
 	image_file icon <- image_file("../images/sofa.png");
-	
+		
 	init {
-		is_requested_by_person <- false;
-		name <- sofa_obj;		
-	}
-	
-	aspect image_aspect {
-		draw icon size: 8;
+		do initialize_big_object(sofa_obj, icon);			
 	}
 }
-
 
 // *** Experiments ***
 
