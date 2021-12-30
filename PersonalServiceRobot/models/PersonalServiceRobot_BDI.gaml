@@ -13,6 +13,7 @@ global {
 	string table_obj <- "table";
 	string book_obj <- "book";
 	string notebook_obj <- "notebook";
+		
 	
 	int number_of_persons <- 4;
 	int number_of_columns <- 40;
@@ -176,7 +177,7 @@ global {
 	}
 }	
 
-grid cell width: number_of_columns height: number_of_rows neighbors: 8 {
+grid cell width: number_of_columns height: number_of_rows neighbors: 4 {
 	bool is_wall <- false;
 	bool has_object <- false;
 	bool has_person <- false;
@@ -256,7 +257,7 @@ species service_robot parent: person control: simple_bdi {
 	bool is_requested_object_found <- false;
 	point object_location;
 	point owner_location;
-	float view_distance <- 600.0;
+	float perception_distance <- rnd(5.0, 30.0)#m;
 	bool should_get_object;
 	object_base target_object;
 	bool should_look_for_object <- false;
@@ -266,9 +267,11 @@ species service_robot parent: person control: simple_bdi {
 		cell my_initial_cell <- one_of(get_available_cells());
 		do initialize(5.0, image, nil, my_initial_cell.location);
 		do add_desire(wander); // just let the robot move randomly 
+		
+		write "perception_distance: " + perception_distance;
 	}
 	
-	perceive target: get_current_target_species() when: should_look_for_object in: view_distance {		
+	perceive target: get_current_target_species() when: should_look_for_object in: perception_distance {		
 		// i want to perceive the requested object's location. That value will be saved with the id given by 'object_at_location'
 		if is_requested_by_person {
 			focus id: object_at_location var: location;
@@ -276,10 +279,10 @@ species service_robot parent: person control: simple_bdi {
 				do remove_intention(wander, false);
 			}
 			myself.should_look_for_object <- false;
-		}
+		}		
 	}
 	
-	perceive target: robot_owner when: is_requested_object_found in: view_distance {
+	perceive target: robot_owner when: is_requested_object_found in: perception_distance {
 		focus id: owner_at_location var:location;
 	}
 	
@@ -293,11 +296,16 @@ species service_robot parent: person control: simple_bdi {
 	}
 	
 	plan find_req_object intention: requested_object_pred {
+		if target_object != nil {
+			do remove_intention(get_predicate(get_current_intention_op(self)), true);
+			do add_intention(grab_object);
+		}
+				
 		do move_randomly;
 	}
-	
-	plan go_and_grab_req_object intention: grab_object when: should_get_object {	
-		 object_location <- point(get_predicate(get_belief_with_name(object_at_location)).values["location_value"]);
+
+	plan go_and_grab_req_object intention: grab_object when: should_get_object {
+		object_location <- point(get_predicate(get_belief_with_name(object_at_location)).values["location_value"]);
 					
 		if object_location != nil {
 			list<object_base> target_objects <- get_current_target_species() where (each.location=object_location and each.is_requested_by_person);
@@ -323,6 +331,11 @@ species service_robot parent: person control: simple_bdi {
 	}
 	
 	plan bring_object_to_owner intention: go_to_owner {
+		if target_object = nil {
+ 			do add_subintention(get_current_intention(), requested_object_pred, true);
+        	do current_intention_on_hold();
+		}		
+		
 		owner_location <- point(get_predicate(get_belief_with_name(owner_at_location)).values["location_value"]);
 	
 		if owner_location != nil and target_object != nil {			
@@ -353,14 +366,15 @@ species service_robot parent: person control: simple_bdi {
 				do remove_belief(find_owner);	
 				do remove_intention(go_to_owner, true);
 				do remove_intention(grab_object, true);
-				do add_desire(wander);
+				do remove_intention(wander, true);
+				do add_intention(requested_object_pred);
 			}
 		}
 	}
 	
 	action move_randomly {
-		cell available_cell <- one_of(get_available_cells());
-		do goto target: available_cell.location speed: 2.0 on: get_available_cells();
+		cell available_cell <- one_of(get_available_cells());		
+		location <- available_cell.location;
 	}
 	
 	species<object_base> get_current_target_species {
@@ -372,6 +386,12 @@ species service_robot parent: person control: simple_bdi {
 				return notebook;
 			}
 		}
+	}
+	
+	aspect image_aspect {
+		draw icon size: icon_size;
+		// also draw a circle so that we can see how big the perception_distance is
+		draw circle(perception_distance) color: #blue border: #black depth: 1 empty: true;
 	}
 }
 
