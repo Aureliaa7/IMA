@@ -34,9 +34,9 @@ global {
 	list<float> time_to_find_objects;
 	list<float> time_to_go_to_owner;
 	list<float> time_to_complete_requests;
-	int max_no_requested_objects <- 6; // this is used in order to stop the simulation and compute an avg time for finding and going to owner
+	int max_no_requested_objects <- 7; // this is used in order to stop the simulation and compute an avg time for finding and going to owner
 	int no_requested_objects <- 0; 
-	string results_file_name <- "../results/serviceRobotApartmentConfig1.txt";	
+	string results_file_name;	
 	int no_cycles_at_requested_object <- 0; // #cycles when the person requested an object
 	int no_cycles_found_object <- 0; // #cycles when the robot found the object
 	int no_cycles_owner_received_object <- 0; // #cycles when the person received the object
@@ -44,6 +44,7 @@ global {
 	geometry shape <- envelope(wall_shapefile);
 
 	init {
+		results_file_name <- "../results/serviceRobotApartmentConfig1_" + (max_no_requested_objects-1) + "RequestedObjects.txt";
 		// also clear the txt file at the beginning of every simulation
 		save("\t\tPersonal Service Robot- using reflex functions\n\n") to: results_file_name;
 		

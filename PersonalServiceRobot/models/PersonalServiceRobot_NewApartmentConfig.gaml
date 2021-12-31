@@ -33,15 +33,15 @@ global {
 	list<float> time_to_find_objects;
 	list<float> time_to_go_to_owner;
 	list<float> time_to_complete_requests;
-	int max_no_requested_objects <- 6; // this is used in order to stop the simulation and compute an avg time for finding and going to owner
+	int max_no_requested_objects <- 7; // this is used in order to stop the simulation and compute an avg time for finding and going to owner
 	int no_requested_objects <- 0; 
-	string results_file_name <- "../results/serviceRobotNewApartmentConfig.txt";	
+	string results_file_name;
 	int no_cycles_at_requested_object <- 0; // #cycles when the person requested an object
 	int no_cycles_found_object <- 0; // #cycles when the robot found the object
 	int no_cycles_owner_received_object <- 0; // #cycles when the person received the object
 	
 	init {
-		
+		results_file_name <-  "../results/serviceRobotNewApartmentConfig_" + (max_no_requested_objects-1) + "RequestedObjects.txt";
 		save("\t\tPersonal Service Robot- using reflex functions and new apartment configuration\n\n") to: results_file_name;
 		
 		do create_apartment_configuration();
