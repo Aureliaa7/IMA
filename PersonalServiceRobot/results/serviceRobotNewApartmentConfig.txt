@@ -1,0 +1,31 @@
+		Personal Service Robot- using reflex functions and new apartment configuration
+
+
+	requested object: notebook(0)
+	time needed to find the object: 77.0 s
+	time needed to go to owner with the found object: 43.0 s
+	total time: 120.0 s
+-------------------------------------------------------------------------------
+	requested object: book(0)
+	time needed to find the object: 32.0 s
+	time needed to go to owner with the found object: 96.0 s
+	total time: 128.0 s
+-------------------------------------------------------------------------------
+	requested object: notebook(3)
+	time needed to find the object: 20.0 s
+	time needed to go to owner with the found object: 17.0 s
+	total time: 37.0 s
+-------------------------------------------------------------------------------
+	requested object: notebook(4)
+	time needed to find the object: 13.0 s
+	time needed to go to owner with the found object: 38.0 s
+	total time: 51.0 s
+-------------------------------------------------------------------------------
+	requested object: notebook(3)
+	time needed to find the object: 34.0 s
+	time needed to go to owner with the found object: 96.0 s
+	total time: 130.0 s
+-------------------------------------------------------------------------------
+	*** average time needed to find the object: 35.2 s
+	*** average time needed to go to owner: 58.0 s
+	*** average time to complete a request:  93.2 s

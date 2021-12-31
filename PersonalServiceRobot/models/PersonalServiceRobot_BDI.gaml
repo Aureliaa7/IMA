@@ -40,8 +40,23 @@ global {
 	// beliefs
 	predicate requested_object_pred <- new_predicate(object_at_location);
 	
+	float time_needed_to_find_object;
+	float time_needed_to_go_to_owner;
+	float total_service_time;
+	list<float> time_to_find_objects;
+	list<float> time_to_go_to_owner;
+	list<float> time_to_complete_requests;
+	int max_no_requested_objects <- 6; // this is used in order to stop the simulation and compute an avg time for finding and going to owner
+	int no_requested_objects <- 0; 
+	string results_file_name <- "../results/serviceRobotWithBDIArchitecture.txt";	
+	int no_cycles_at_requested_object <- 0; // #cycles when the person requested an object
+	int no_cycles_found_object <- 0; // #cycles when the robot found the object
+	int no_cycles_owner_received_object <- 0; // #cycles when the person received the object
+	
 	
 	init {
+		save("\t\tPersonal Service Robot- using BDI architecture\n\n") to: results_file_name;
+		
 		do create_apartment_configuration();
 		
 		do create_object(point(5, 7), closet_obj);
@@ -58,6 +73,21 @@ global {
 		create regular_person number: number_of_persons;
 		create service_robot;
 		create robot_owner;
+	}
+	
+	reflex end_simulation when: no_requested_objects = max_no_requested_objects {
+    	do pause;
+	
+		save ("\t*** average time needed to find the object: " + sum(time_to_find_objects) / (no_requested_objects-1) + " s") 
+		to: results_file_name rewrite: false;
+	    
+    	save ("\t*** average time needed to go to owner: " 
+		+ sum(time_to_go_to_owner) / (no_requested_objects-1) + " s"
+		) to: results_file_name rewrite: false;
+	    
+	    save ("\t*** average time to complete a request:  " 
+		+ sum(time_to_complete_requests) / (no_requested_objects-1) + " s"
+		) to: results_file_name rewrite: false;	    		
 	}
 	
 	action create_object(point object_location, string object_name) {
@@ -297,6 +327,7 @@ species service_robot parent: person control: simple_bdi {
 		do add_desire(wander); // just let the robot move randomly 
 		
 		write "perception_distance: " + perception_distance;
+		save ("\tperception_distance: " + perception_distance + "\n") to: results_file_name rewrite: false;
 	}
 	
 	perceive target: get_current_target_species() when: should_look_for_object in: perception_distance {		
@@ -345,6 +376,11 @@ species service_robot parent: person control: simple_bdi {
 			do goto target: object_location speed: 2.0 on: get_available_cells() recompute_path: true;
 			
 			if (self distance_to target_object.location) < 1.0 {
+				no_cycles_found_object <- cycle;
+				time_needed_to_find_object <- (no_cycles_found_object - no_cycles_at_requested_object) * step;
+				time_to_find_objects << time_needed_to_find_object;
+				save ("\ttime needed to find the object: " + time_needed_to_find_object + " s") to: results_file_name rewrite: false;
+					
 				ask target_object {
 					should_move <- true;
 				}
@@ -370,7 +406,19 @@ species service_robot parent: person control: simple_bdi {
 		if owner_location != nil and target_object != nil {			
 			do goto target: owner_location speed: 2.0 on: get_available_cells() recompute_path: false;
 			
-			if (self distance_to owner_location) < 3.0  {				
+			if (self distance_to owner_location) < 3.0  {	
+				no_cycles_owner_received_object <- cycle;
+				time_needed_to_go_to_owner <- (no_cycles_owner_received_object - no_cycles_found_object) * step;
+				time_to_go_to_owner << time_needed_to_go_to_owner;
+				
+				save ("\ttime needed to go to owner with the found object: " + time_needed_to_go_to_owner + " s") 
+					to: results_file_name rewrite: false;
+				total_service_time <- (no_cycles_owner_received_object - no_cycles_at_requested_object) * step;
+				time_to_complete_requests << total_service_time;
+				save("\ttotal time: " + total_service_time + " s") to: results_file_name rewrite: false;
+				save("-------------------------------------------------------------------------------") 
+					to: results_file_name rewrite: false;
+							
 				// let the object there
 				ask target_object {
 					should_move <- false;
@@ -435,7 +483,16 @@ species robot_owner parent: person {
 	
 	reflex ask_for_object when: not should_receive_object {
 		object_base requested_object <- get_random_object();
+		requested_object <- get_random_object();
+		no_requested_objects <- no_requested_objects + 1;
+		
+		if no_requested_objects < max_no_requested_objects {
+			save ("\trequested object: " + requested_object) to: results_file_name rewrite: false;
+		}
+		
 		if requested_object != nil {
+			no_cycles_at_requested_object <- cycle;
+		
 			ask requested_object {
 				is_requested_by_person <- true;
 			}

@@ -22,16 +22,31 @@ global {
 	int no_notebooks <- 5;
 	int no_books <- 7;	
 	
-	int no_total_requests <- 0;
-	int no_fulfilled_requests <- 0;
-
 	list<string> object_names <- [notebook_obj, book_obj];
 	string requested_object_name;
 	point owner_location;
 	
+	float time_needed_to_find_object;
+	float time_needed_to_go_to_owner;
+	float total_service_time; // for a single request
+	// the values stored in these lists are used to compute an avg time for finding an object,
+	// for going to owner
+	list<float> time_to_find_objects;
+	list<float> time_to_go_to_owner;
+	list<float> time_to_complete_requests;
+	int max_no_requested_objects <- 6; // this is used in order to stop the simulation and compute an avg time for finding and going to owner
+	int no_requested_objects <- 0; 
+	string results_file_name <- "../results/serviceRobotApartmentConfig1.txt";	
+	int no_cycles_at_requested_object <- 0; // #cycles when the person requested an object
+	int no_cycles_found_object <- 0; // #cycles when the robot found the object
+	int no_cycles_owner_received_object <- 0; // #cycles when the person received the object
+
 	geometry shape <- envelope(wall_shapefile);
 
 	init {
+		// also clear the txt file at the beginning of every simulation
+		save("\t\tPersonal Service Robot- using reflex functions\n\n") to: results_file_name;
+		
 		create wall from: wall_shapefile {
 			ask cell overlapping self {
 				is_wall <- true;
@@ -52,6 +67,23 @@ global {
 		create regular_person number: number_of_persons;
 		create service_robot;
 		create robot_owner;
+	}
+	
+   reflex end_simulation when: no_requested_objects = max_no_requested_objects {
+    	do pause;
+	
+		// divide to no_requests-1 bc. when the no_requested_objects becomes equal to max_no_requested_objects, 
+		// the simulation stops and the last request is not executed. So, only no_requested_objects requests are fulfilled.
+		save ("\n\t*** average time needed to find the object: " + sum(time_to_find_objects) / (no_requested_objects-1) + " s") 
+		to: results_file_name rewrite: false;
+	    
+    	save ("\t*** average time needed to go to owner: " 
+		+ sum(time_to_go_to_owner) / (no_requested_objects-1) + " s"
+		) to: results_file_name rewrite: false;
+	    
+	    save ("\t*** average time to complete a request:  " 
+		+ sum(time_to_complete_requests) / (no_requested_objects-1) + " s"
+		) to: results_file_name rewrite: false;	    		
 	}
 	
 	action create_object(point object_location, string object_name) {
@@ -209,7 +241,12 @@ species service_robot parent: person {
 		do goto target: object_location speed: 2.0 on: get_available_cells() recompute_path: false;
 		
 		if (self distance_to object_location) < 1.0 {
+			no_cycles_found_object <- cycle;
+			time_needed_to_find_object <- (no_cycles_found_object - no_cycles_at_requested_object) * step;
+			time_to_find_objects << time_needed_to_find_object;
+			save ("\ttime needed to find the object: " + time_needed_to_find_object + " s") to: results_file_name rewrite: false;
 			grabbed_object <- true;
+			
 			ask requested_obj {
 				should_move <- true;
 			}
@@ -230,6 +267,18 @@ species service_robot parent: person {
 			do goto target: owner_location speed: 2.0 on: get_available_cells() recompute_path: false;
 			
 			if (self distance_to owner_location) < 1.0 {
+				no_cycles_owner_received_object <- cycle;
+				time_needed_to_go_to_owner <- (no_cycles_owner_received_object - no_cycles_found_object) * step;
+				time_to_go_to_owner << time_needed_to_go_to_owner;
+				
+				save ("\ttime needed to go to owner with the found object: " + time_needed_to_go_to_owner + " s") 
+					to: results_file_name rewrite: false;
+				total_service_time <- (no_cycles_owner_received_object - no_cycles_at_requested_object) * step;
+				time_to_complete_requests << total_service_time;
+				save("\ttotal time: " + total_service_time + " s") to: results_file_name rewrite: false;
+				save("-------------------------------------------------------------------------------") 
+					to: results_file_name rewrite: false;
+				
 				ask requested_obj {
 					should_move <- false;
 					is_requested_by_person <- false;
@@ -244,7 +293,6 @@ species service_robot parent: person {
 				grabbed_object <- false;
 				is_busy <- false;
 				is_requested_object_found <- false;
-				no_fulfilled_requests <- no_fulfilled_requests + 1;
 			}
 		}	
 	}
@@ -269,7 +317,15 @@ species robot_owner parent: person {
 		requested_object <- nil;
 		
 		requested_object <- get_random_object();
+		no_requested_objects <- no_requested_objects + 1;
+		
+		if no_requested_objects < max_no_requested_objects {
+			save ("\trequested object: " + requested_object) to: results_file_name rewrite: false;
+		}
+		
 		if requested_object != nil {
+			no_cycles_at_requested_object <- cycle;
+			
 			ask requested_object {
 				is_requested_by_person <- true;
 			}
@@ -289,9 +345,8 @@ species robot_owner parent: person {
 	} 
 	
 	object_base get_random_object {
-		no_total_requests <- no_total_requests + 1;
 		requested_object_name <- one_of(object_names);
-		write "requested_object_name: " + requested_object_name;
+		
 		object_base object;
 		
 		if requested_object_name = book_obj {
@@ -299,7 +354,7 @@ species robot_owner parent: person {
  		} else if requested_object_name = notebook_obj {
  			object <- one_of(notebook);
  		}
- 		
+ 		 		
  		return object;
 	}	
 }
@@ -370,15 +425,9 @@ species sofa parent: object_base {
 
 experiment personalservicerobot type: gui {
 	float minimum_cycle_duration <- 0.04;
+	
 	output {
-//		layout #split;
-//		display result { 
-//			chart "Result" type: series background: #white {
-//				data '#requests' value: no_total_requests color: #green;
-//				data '#fulfilled_requests' value: no_fulfilled_requests color: #red;
-//			}
-//		}
-		
+
 		display display1 type: opengl {
 			image "../images/floor.jpg";
 			species wall refresh: false;
