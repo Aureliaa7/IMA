@@ -1,0 +1,58 @@
+		Personal Service Robot- using BDI architecture
+
+
+	perception_distance: 6.820251116706256
+
+	requested object: teddy_bear(2)
+	time needed to find the object: 16.0 s
+	time needed to go to owner with the found object: 102.0 s
+	total time: 118.0 s
+-------------------------------------------------------------------------------
+	requested object: teddy_bear(0)
+	time needed to find the object: 107.0 s
+	time needed to go to owner with the found object: 129.0 s
+	total time: 236.0 s
+-------------------------------------------------------------------------------
+	requested object: teddy_bear(3)
+	time needed to find the object: 31.0 s
+	time needed to go to owner with the found object: 161.0 s
+	total time: 192.0 s
+-------------------------------------------------------------------------------
+	requested object: book(1)
+	time needed to find the object: 221.0 s
+	time needed to go to owner with the found object: 112.0 s
+	total time: 333.0 s
+-------------------------------------------------------------------------------
+	requested object: teddy_bear(2)
+	time needed to find the object: 112.0 s
+	time needed to go to owner with the found object: 247.0 s
+	total time: 359.0 s
+-------------------------------------------------------------------------------
+	requested object: food(1)
+	time needed to find the object: 95.0 s
+	time needed to go to owner with the found object: 105.0 s
+	total time: 200.0 s
+-------------------------------------------------------------------------------
+	requested object: notebook(4)
+	time needed to find the object: 22.0 s
+	time needed to go to owner with the found object: 25.0 s
+	total time: 47.0 s
+-------------------------------------------------------------------------------
+	requested object: notebook(0)
+	time needed to find the object: 14.0 s
+	time needed to go to owner with the found object: 17.0 s
+	total time: 31.0 s
+-------------------------------------------------------------------------------
+	requested object: food(6)
+	time needed to find the object: 192.0 s
+	time needed to go to owner with the found object: 70.0 s
+	total time: 262.0 s
+-------------------------------------------------------------------------------
+	requested object: teddy_bear(2)
+	time needed to find the object: 34.0 s
+	time needed to go to owner with the found object: 43.0 s
+	total time: 77.0 s
+-------------------------------------------------------------------------------
+	*** average time needed to find the object: 84.4 s
+	*** average time needed to go to owner: 101.1 s
+	*** average time to complete a request:  185.5 s

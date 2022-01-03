@@ -1,0 +1,5 @@
+		Personal Service Robot- using BDI architecture
+
+
+	perception_distance: 12.068720820428844
+

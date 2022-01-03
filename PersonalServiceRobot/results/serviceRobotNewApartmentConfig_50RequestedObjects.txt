@@ -1,256 +1,256 @@
 		Personal Service Robot- using reflex functions and new apartment configuration
 
 
+	requested object: teddy_bear(4)
+	time needed to find the object: 17.0 s
+	time needed to go to owner with the found object: 243.0 s
+	total time: 260.0 s
+-------------------------------------------------------------------------------
+	requested object: book(2)
+	time needed to find the object: 62.0 s
+	time needed to go to owner with the found object: 1.0 s
+	total time: 63.0 s
+-------------------------------------------------------------------------------
+	requested object: book(5)
+	time needed to find the object: 101.0 s
+	time needed to go to owner with the found object: 375.0 s
+	total time: 476.0 s
+-------------------------------------------------------------------------------
+	requested object: book(5)
+	time needed to find the object: 1.0 s
+	time needed to go to owner with the found object: 0.0 s
+	total time: 1.0 s
+-------------------------------------------------------------------------------
+	requested object: notebook(3)
+	time needed to find the object: 49.0 s
+	time needed to go to owner with the found object: 10.0 s
+	total time: 59.0 s
+-------------------------------------------------------------------------------
+	requested object: food(7)
+	time needed to find the object: 80.0 s
+	time needed to go to owner with the found object: 380.0 s
+	total time: 460.0 s
+-------------------------------------------------------------------------------
+	requested object: book(3)
+	time needed to find the object: 40.0 s
+	time needed to go to owner with the found object: 6.0 s
+	total time: 46.0 s
+-------------------------------------------------------------------------------
+	requested object: book(1)
+	time needed to find the object: 85.0 s
+	time needed to go to owner with the found object: 80.0 s
+	total time: 165.0 s
+-------------------------------------------------------------------------------
+	requested object: teddy_bear(4)
+	time needed to find the object: 48.0 s
+	time needed to go to owner with the found object: 140.0 s
+	total time: 188.0 s
+-------------------------------------------------------------------------------
+	requested object: food(2)
+	time needed to find the object: 49.0 s
+	time needed to go to owner with the found object: 138.0 s
+	total time: 187.0 s
+-------------------------------------------------------------------------------
+	requested object: notebook(3)
+	time needed to find the object: 11.0 s
+	time needed to go to owner with the found object: 54.0 s
+	total time: 65.0 s
+-------------------------------------------------------------------------------
 	requested object: notebook(0)
-	time needed to find the object: 5.0 s
-	time needed to go to owner with the found object: 43.0 s
-	total time: 48.0 s
+	time needed to find the object: 31.0 s
+	time needed to go to owner with the found object: 8.0 s
+	total time: 39.0 s
+-------------------------------------------------------------------------------
+	requested object: food(9)
+	time needed to find the object: 10.0 s
+	time needed to go to owner with the found object: 163.0 s
+	total time: 173.0 s
+-------------------------------------------------------------------------------
+	requested object: teddy_bear(0)
+	time needed to find the object: 35.0 s
+	time needed to go to owner with the found object: 2.0 s
+	total time: 37.0 s
 -------------------------------------------------------------------------------
 	requested object: notebook(2)
-	time needed to find the object: 67.0 s
-	time needed to go to owner with the found object: 228.0 s
-	total time: 295.0 s
+	time needed to find the object: 70.0 s
+	time needed to go to owner with the found object: 19.0 s
+	total time: 89.0 s
+-------------------------------------------------------------------------------
+	requested object: food(3)
+	time needed to find the object: 11.0 s
+	time needed to go to owner with the found object: 194.0 s
+	total time: 205.0 s
+-------------------------------------------------------------------------------
+	requested object: notebook(2)
+	time needed to find the object: 40.0 s
+	time needed to go to owner with the found object: 96.0 s
+	total time: 136.0 s
+-------------------------------------------------------------------------------
+	requested object: food(13)
+	time needed to find the object: 41.0 s
+	time needed to go to owner with the found object: 109.0 s
+	total time: 150.0 s
+-------------------------------------------------------------------------------
+	requested object: teddy_bear(2)
+	time needed to find the object: 61.0 s
+	time needed to go to owner with the found object: 411.0 s
+	total time: 472.0 s
 -------------------------------------------------------------------------------
 	requested object: notebook(4)
+	time needed to find the object: 21.0 s
+	time needed to go to owner with the found object: 23.0 s
+	total time: 44.0 s
+-------------------------------------------------------------------------------
+	requested object: food(10)
 	time needed to find the object: 6.0 s
-	time needed to go to owner with the found object: 16.0 s
-	total time: 22.0 s
+	time needed to go to owner with the found object: 17.0 s
+	total time: 23.0 s
+-------------------------------------------------------------------------------
+	requested object: book(0)
+	time needed to find the object: 44.0 s
+	time needed to go to owner with the found object: 25.0 s
+	total time: 69.0 s
+-------------------------------------------------------------------------------
+	requested object: food(13)
+	time needed to find the object: 25.0 s
+	time needed to go to owner with the found object: 46.0 s
+	total time: 71.0 s
+-------------------------------------------------------------------------------
+	requested object: book(0)
+	time needed to find the object: 30.0 s
+	time needed to go to owner with the found object: 158.0 s
+	total time: 188.0 s
+-------------------------------------------------------------------------------
+	requested object: teddy_bear(3)
+	time needed to find the object: 36.0 s
+	time needed to go to owner with the found object: 305.0 s
+	total time: 341.0 s
 -------------------------------------------------------------------------------
 	requested object: notebook(1)
-	time needed to find the object: 61.0 s
-	time needed to go to owner with the found object: 14.0 s
-	total time: 75.0 s
--------------------------------------------------------------------------------
-	requested object: notebook(4)
-	time needed to find the object: 49.0 s
-	time needed to go to owner with the found object: 72.0 s
-	total time: 121.0 s
--------------------------------------------------------------------------------
-	requested object: notebook(4)
-	time needed to find the object: 1.0 s
-	time needed to go to owner with the found object: 0.0 s
-	total time: 1.0 s
--------------------------------------------------------------------------------
-	requested object: notebook(2)
-	time needed to find the object: 50.0 s
-	time needed to go to owner with the found object: 12.0 s
-	total time: 62.0 s
--------------------------------------------------------------------------------
-	requested object: book(5)
-	time needed to find the object: 25.0 s
-	time needed to go to owner with the found object: 48.0 s
-	total time: 73.0 s
--------------------------------------------------------------------------------
-	requested object: notebook(2)
-	time needed to find the object: 25.0 s
-	time needed to go to owner with the found object: 177.0 s
-	total time: 202.0 s
--------------------------------------------------------------------------------
-	requested object: book(5)
-	time needed to find the object: 47.0 s
-	time needed to go to owner with the found object: 210.0 s
-	total time: 257.0 s
--------------------------------------------------------------------------------
-	requested object: book(5)
-	time needed to find the object: 1.0 s
-	time needed to go to owner with the found object: 0.0 s
-	total time: 1.0 s
--------------------------------------------------------------------------------
-	requested object: book(2)
-	time needed to find the object: 35.0 s
-	time needed to go to owner with the found object: 122.0 s
-	total time: 157.0 s
--------------------------------------------------------------------------------
-	requested object: notebook(0)
-	time needed to find the object: 8.0 s
-	time needed to go to owner with the found object: 149.0 s
-	total time: 157.0 s
--------------------------------------------------------------------------------
-	requested object: book(3)
-	time needed to find the object: 47.0 s
-	time needed to go to owner with the found object: 72.0 s
-	total time: 119.0 s
--------------------------------------------------------------------------------
-	requested object: notebook(3)
-	time needed to find the object: 61.0 s
-	time needed to go to owner with the found object: 29.0 s
-	total time: 90.0 s
--------------------------------------------------------------------------------
-	requested object: book(6)
-	time needed to find the object: 95.0 s
-	time needed to go to owner with the found object: 90.0 s
-	total time: 185.0 s
--------------------------------------------------------------------------------
-	requested object: book(6)
-	time needed to find the object: 1.0 s
-	time needed to go to owner with the found object: 0.0 s
-	total time: 1.0 s
--------------------------------------------------------------------------------
-	requested object: book(0)
-	time needed to find the object: 80.0 s
-	time needed to go to owner with the found object: 49.0 s
-	total time: 129.0 s
--------------------------------------------------------------------------------
-	requested object: book(4)
-	time needed to find the object: 45.0 s
-	time needed to go to owner with the found object: 133.0 s
-	total time: 178.0 s
--------------------------------------------------------------------------------
-	requested object: book(0)
-	time needed to find the object: 41.0 s
-	time needed to go to owner with the found object: 57.0 s
-	total time: 98.0 s
--------------------------------------------------------------------------------
-	requested object: notebook(3)
-	time needed to find the object: 43.0 s
-	time needed to go to owner with the found object: 57.0 s
-	total time: 100.0 s
--------------------------------------------------------------------------------
-	requested object: notebook(0)
-	time needed to find the object: 36.0 s
-	time needed to go to owner with the found object: 68.0 s
-	total time: 104.0 s
--------------------------------------------------------------------------------
-	requested object: notebook(0)
-	time needed to find the object: 1.0 s
-	time needed to go to owner with the found object: 37.0 s
-	total time: 38.0 s
--------------------------------------------------------------------------------
-	requested object: notebook(4)
-	time needed to find the object: 55.0 s
-	time needed to go to owner with the found object: 17.0 s
-	total time: 72.0 s
--------------------------------------------------------------------------------
-	requested object: book(5)
-	time needed to find the object: 44.0 s
-	time needed to go to owner with the found object: 12.0 s
-	total time: 56.0 s
--------------------------------------------------------------------------------
-	requested object: notebook(2)
-	time needed to find the object: 9.0 s
-	time needed to go to owner with the found object: 48.0 s
-	total time: 57.0 s
--------------------------------------------------------------------------------
-	requested object: book(2)
-	time needed to find the object: 13.0 s
-	time needed to go to owner with the found object: 182.0 s
-	total time: 195.0 s
--------------------------------------------------------------------------------
-	requested object: book(3)
-	time needed to find the object: 32.0 s
-	time needed to go to owner with the found object: 34.0 s
-	total time: 66.0 s
--------------------------------------------------------------------------------
-	requested object: book(5)
-	time needed to find the object: 39.0 s
-	time needed to go to owner with the found object: 14.0 s
-	total time: 53.0 s
--------------------------------------------------------------------------------
-	requested object: book(5)
-	time needed to find the object: 1.0 s
-	time needed to go to owner with the found object: 0.0 s
-	total time: 1.0 s
--------------------------------------------------------------------------------
-	requested object: notebook(2)
-	time needed to find the object: 38.0 s
-	time needed to go to owner with the found object: 137.0 s
-	total time: 175.0 s
--------------------------------------------------------------------------------
-	requested object: book(4)
-	time needed to find the object: 10.0 s
-	time needed to go to owner with the found object: 50.0 s
-	total time: 60.0 s
--------------------------------------------------------------------------------
-	requested object: book(5)
-	time needed to find the object: 10.0 s
-	time needed to go to owner with the found object: 87.0 s
-	total time: 97.0 s
--------------------------------------------------------------------------------
-	requested object: book(6)
-	time needed to find the object: 36.0 s
-	time needed to go to owner with the found object: 69.0 s
-	total time: 105.0 s
--------------------------------------------------------------------------------
-	requested object: notebook(4)
-	time needed to find the object: 53.0 s
-	time needed to go to owner with the found object: 28.0 s
+	time needed to find the object: 54.0 s
+	time needed to go to owner with the found object: 27.0 s
 	total time: 81.0 s
 -------------------------------------------------------------------------------
-	requested object: book(1)
-	time needed to find the object: 40.0 s
-	time needed to go to owner with the found object: 63.0 s
-	total time: 103.0 s
--------------------------------------------------------------------------------
-	requested object: book(6)
-	time needed to find the object: 52.0 s
-	time needed to go to owner with the found object: 60.0 s
-	total time: 112.0 s
--------------------------------------------------------------------------------
 	requested object: book(2)
-	time needed to find the object: 32.0 s
-	time needed to go to owner with the found object: 22.0 s
-	total time: 54.0 s
+	time needed to find the object: 85.0 s
+	time needed to go to owner with the found object: 20.0 s
+	total time: 105.0 s
 -------------------------------------------------------------------------------
-	requested object: notebook(2)
-	time needed to find the object: 10.0 s
-	time needed to go to owner with the found object: 32.0 s
-	total time: 42.0 s
--------------------------------------------------------------------------------
-	requested object: notebook(0)
-	time needed to find the object: 114.0 s
-	time needed to go to owner with the found object: 50.0 s
-	total time: 164.0 s
--------------------------------------------------------------------------------
-	requested object: book(0)
-	time needed to find the object: 15.0 s
-	time needed to go to owner with the found object: 70.0 s
-	total time: 85.0 s
--------------------------------------------------------------------------------
-	requested object: notebook(3)
-	time needed to find the object: 32.0 s
-	time needed to go to owner with the found object: 76.0 s
-	total time: 108.0 s
--------------------------------------------------------------------------------
-	requested object: book(1)
-	time needed to find the object: 46.0 s
-	time needed to go to owner with the found object: 75.0 s
-	total time: 121.0 s
--------------------------------------------------------------------------------
-	requested object: notebook(2)
-	time needed to find the object: 8.0 s
-	time needed to go to owner with the found object: 347.0 s
-	total time: 355.0 s
+	requested object: food(7)
+	time needed to find the object: 7.0 s
+	time needed to go to owner with the found object: 37.0 s
+	total time: 44.0 s
 -------------------------------------------------------------------------------
 	requested object: notebook(4)
-	time needed to find the object: 22.0 s
-	time needed to go to owner with the found object: 7.0 s
-	total time: 29.0 s
--------------------------------------------------------------------------------
-	requested object: notebook(2)
-	time needed to find the object: 20.0 s
-	time needed to go to owner with the found object: 14.0 s
-	total time: 34.0 s
+	time needed to find the object: 46.0 s
+	time needed to go to owner with the found object: 17.0 s
+	total time: 63.0 s
 -------------------------------------------------------------------------------
 	requested object: book(1)
-	time needed to find the object: 13.0 s
-	time needed to go to owner with the found object: 12.0 s
-	total time: 25.0 s
+	time needed to find the object: 3.0 s
+	time needed to go to owner with the found object: 184.0 s
+	total time: 187.0 s
 -------------------------------------------------------------------------------
-	requested object: notebook(0)
-	time needed to find the object: 62.0 s
-	time needed to go to owner with the found object: 248.0 s
-	total time: 310.0 s
+	requested object: food(3)
+	time needed to find the object: 27.0 s
+	time needed to go to owner with the found object: 179.0 s
+	total time: 206.0 s
 -------------------------------------------------------------------------------
-	requested object: notebook(0)
+	requested object: food(6)
+	time needed to find the object: 32.0 s
+	time needed to go to owner with the found object: 169.0 s
+	total time: 201.0 s
+-------------------------------------------------------------------------------
+	requested object: food(5)
+	time needed to find the object: 32.0 s
+	time needed to go to owner with the found object: 78.0 s
+	total time: 110.0 s
+-------------------------------------------------------------------------------
+	requested object: book(3)
+	time needed to find the object: 57.0 s
+	time needed to go to owner with the found object: 119.0 s
+	total time: 176.0 s
+-------------------------------------------------------------------------------
+	requested object: notebook(1)
+	time needed to find the object: 65.0 s
+	time needed to go to owner with the found object: 111.0 s
+	total time: 176.0 s
+-------------------------------------------------------------------------------
+	requested object: teddy_bear(4)
+	time needed to find the object: 34.0 s
+	time needed to go to owner with the found object: 35.0 s
+	total time: 69.0 s
+-------------------------------------------------------------------------------
+	requested object: book(6)
+	time needed to find the object: 23.0 s
+	time needed to go to owner with the found object: 11.0 s
+	total time: 34.0 s
+-------------------------------------------------------------------------------
+	requested object: book(5)
+	time needed to find the object: 56.0 s
+	time needed to go to owner with the found object: 139.0 s
+	total time: 195.0 s
+-------------------------------------------------------------------------------
+	requested object: food(12)
+	time needed to find the object: 33.0 s
+	time needed to go to owner with the found object: 61.0 s
+	total time: 94.0 s
+-------------------------------------------------------------------------------
+	requested object: food(7)
+	time needed to find the object: 4.0 s
+	time needed to go to owner with the found object: 0.0 s
+	total time: 4.0 s
+-------------------------------------------------------------------------------
+	requested object: notebook(2)
+	time needed to find the object: 31.0 s
+	time needed to go to owner with the found object: 120.0 s
+	total time: 151.0 s
+-------------------------------------------------------------------------------
+	requested object: notebook(2)
 	time needed to find the object: 1.0 s
 	time needed to go to owner with the found object: 0.0 s
 	total time: 1.0 s
 -------------------------------------------------------------------------------
-	requested object: book(2)
-	time needed to find the object: 26.0 s
-	time needed to go to owner with the found object: 62.0 s
-	total time: 88.0 s
+	requested object: book(4)
+	time needed to find the object: 10.0 s
+	time needed to go to owner with the found object: 58.0 s
+	total time: 68.0 s
 -------------------------------------------------------------------------------
-	*** average time needed to find the object: 33.26 s
-	*** average time needed to go to owner: 69.98 s
-	*** average time to complete a request:  103.24 s
+	requested object: teddy_bear(4)
+	time needed to find the object: 40.0 s
+	time needed to go to owner with the found object: 169.0 s
+	total time: 209.0 s
+-------------------------------------------------------------------------------
+	requested object: book(3)
+	time needed to find the object: 18.0 s
+	time needed to go to owner with the found object: 88.0 s
+	total time: 106.0 s
+-------------------------------------------------------------------------------
+	requested object: notebook(3)
+	time needed to find the object: 21.0 s
+	time needed to go to owner with the found object: 25.0 s
+	total time: 46.0 s
+-------------------------------------------------------------------------------
+	requested object: teddy_bear(0)
+	time needed to find the object: 39.0 s
+	time needed to go to owner with the found object: 66.0 s
+	total time: 105.0 s
+-------------------------------------------------------------------------------
+	requested object: food(5)
+	time needed to find the object: 23.0 s
+	time needed to go to owner with the found object: 45.0 s
+	total time: 68.0 s
+-------------------------------------------------------------------------------
+	requested object: book(6)
+	time needed to find the object: 57.0 s
+	time needed to go to owner with the found object: 113.0 s
+	total time: 170.0 s
+-------------------------------------------------------------------------------
+	requested object: book(3)
+	time needed to find the object: 15.0 s
+	time needed to go to owner with the found object: 248.0 s
+	total time: 263.0 s
+-------------------------------------------------------------------------------
+	*** average time needed to find the object: 36.34 s
+	*** average time needed to go to owner: 102.44 s
+	*** average time to complete a request:  138.78 s

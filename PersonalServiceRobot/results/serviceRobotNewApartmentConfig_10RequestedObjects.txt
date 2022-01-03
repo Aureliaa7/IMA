@@ -1,0 +1,56 @@
+		Personal Service Robot- using reflex functions and new apartment configuration
+
+
+	requested object: book(3)
+	time needed to find the object: 19.0 s
+	time needed to go to owner with the found object: 109.0 s
+	total time: 128.0 s
+-------------------------------------------------------------------------------
+	requested object: notebook(0)
+	time needed to find the object: 62.0 s
+	time needed to go to owner with the found object: 72.0 s
+	total time: 134.0 s
+-------------------------------------------------------------------------------
+	requested object: notebook(4)
+	time needed to find the object: 35.0 s
+	time needed to go to owner with the found object: 57.0 s
+	total time: 92.0 s
+-------------------------------------------------------------------------------
+	requested object: food(14)
+	time needed to find the object: 28.0 s
+	time needed to go to owner with the found object: 48.0 s
+	total time: 76.0 s
+-------------------------------------------------------------------------------
+	requested object: teddy_bear(3)
+	time needed to find the object: 11.0 s
+	time needed to go to owner with the found object: 77.0 s
+	total time: 88.0 s
+-------------------------------------------------------------------------------
+	requested object: notebook(2)
+	time needed to find the object: 79.0 s
+	time needed to go to owner with the found object: 82.0 s
+	total time: 161.0 s
+-------------------------------------------------------------------------------
+	requested object: food(14)
+	time needed to find the object: 15.0 s
+	time needed to go to owner with the found object: 124.0 s
+	total time: 139.0 s
+-------------------------------------------------------------------------------
+	requested object: notebook(2)
+	time needed to find the object: 44.0 s
+	time needed to go to owner with the found object: 35.0 s
+	total time: 79.0 s
+-------------------------------------------------------------------------------
+	requested object: teddy_bear(1)
+	time needed to find the object: 47.0 s
+	time needed to go to owner with the found object: 156.0 s
+	total time: 203.0 s
+-------------------------------------------------------------------------------
+	requested object: book(2)
+	time needed to find the object: 47.0 s
+	time needed to go to owner with the found object: 36.0 s
+	total time: 83.0 s
+-------------------------------------------------------------------------------
+	*** average time needed to find the object: 38.7 s
+	*** average time needed to go to owner: 79.6 s
+	*** average time to complete a request:  118.3 s

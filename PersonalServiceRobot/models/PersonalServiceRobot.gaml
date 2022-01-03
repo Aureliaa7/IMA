@@ -15,14 +15,18 @@ global {
 	string table_obj <- "table";
 	string book_obj <- "book";
 	string notebook_obj <- "notebook"; 
+	string food_obj <- "food";
+	string teddy_bear_obj <- "teddy bear";
 	
 	int number_of_persons <- 4;
-	int number_of_columns <- 90;
-	int number_of_rows <- 90;
+	int number_of_columns <- 40;
+	int number_of_rows <- 40;
 	int no_notebooks <- 5;
 	int no_books <- 7;	
+	int no_food_items <- 15;
+	int no_teddy_bears <- 5;
 	
-	list<string> object_names <- [notebook_obj, book_obj];
+	list<string> object_names <- [notebook_obj, book_obj, food_obj, teddy_bear_obj];
 	string requested_object_name;
 	point owner_location;
 	
@@ -34,17 +38,19 @@ global {
 	list<float> time_to_find_objects;
 	list<float> time_to_go_to_owner;
 	list<float> time_to_complete_requests;
-	int max_no_requested_objects <- 7; // this is used in order to stop the simulation and compute an avg time for finding and going to owner
+	int max_no_requested_objects <- 50; // this is used in order to stop the simulation and compute an avg time for finding and going to owner
 	int no_requested_objects <- 0; 
 	string results_file_name;	
 	int no_cycles_at_requested_object <- 0; // #cycles when the person requested an object
 	int no_cycles_found_object <- 0; // #cycles when the robot found the object
 	int no_cycles_owner_received_object <- 0; // #cycles when the person received the object
+	bool should_end_simulation;
+
 
 	geometry shape <- envelope(wall_shapefile);
 
 	init {
-		results_file_name <- "../results/serviceRobotApartmentConfig1_" + (max_no_requested_objects-1) + "RequestedObjects.txt";
+		results_file_name <- "../results/serviceRobotApartmentConfig1_" + max_no_requested_objects + "RequestedObjects.txt";
 		// also clear the txt file at the beginning of every simulation
 		save("\t\tPersonal Service Robot- using reflex functions\n\n") to: results_file_name;
 		
@@ -64,26 +70,28 @@ global {
 		
 		create notebook number: no_notebooks;
 		create book number: no_books;
+		create food number: no_food_items;
+		create teddy_bear number: no_teddy_bears;
 		
 		create regular_person number: number_of_persons;
 		create service_robot;
 		create robot_owner;
 	}
 	
-   reflex end_simulation when: no_requested_objects = max_no_requested_objects {
+   reflex end_simulation when: should_end_simulation {
     	do pause;
 	
 		// divide to no_requests-1 bc. when the no_requested_objects becomes equal to max_no_requested_objects, 
 		// the simulation stops and the last request is not executed. So, only no_requested_objects requests are fulfilled.
-		save ("\n\t*** average time needed to find the object: " + sum(time_to_find_objects) / (no_requested_objects-1) + " s") 
+		save ("\n\t*** average time needed to find the object: " + sum(time_to_find_objects) / no_requested_objects + " s") 
 		to: results_file_name rewrite: false;
 	    
     	save ("\t*** average time needed to go to owner: " 
-		+ sum(time_to_go_to_owner) / (no_requested_objects-1) + " s"
+		+ sum(time_to_go_to_owner) / no_requested_objects + " s"
 		) to: results_file_name rewrite: false;
 	    
 	    save ("\t*** average time to complete a request:  " 
-		+ sum(time_to_complete_requests) / (no_requested_objects-1) + " s"
+		+ sum(time_to_complete_requests) / no_requested_objects + " s"
 		) to: results_file_name rewrite: false;	    		
 	}
 	
@@ -198,11 +206,11 @@ species object_base parent: species_base {
 	}
 	
 	aspect image_aspect {
-		draw icon size: 7;
+		draw icon size: 5;
 	}
 	
 	aspect default {
-		draw rectangle(1, 2) color: color;
+		draw square(1.5) color: color;
 	}
 }
 
@@ -215,6 +223,7 @@ species service_robot parent: person {
 	point object_location;
 	bool grabbed_object <- false;
 	bool is_busy <- false;
+	float speed <- 6#km/#h;
 
 	init {
 		image_file image <- image_file("../images/robot3.png");
@@ -225,12 +234,21 @@ species service_robot parent: person {
 	reflex find_requested_object when: not is_requested_object_found and is_busy {
 		requested_obj <- nil;
 		
-		if requested_object_name = book_obj {
-			requested_obj <- one_of(book where each.is_requested_by_person);
-		} else if requested_object_name = notebook_obj {
-			requested_obj <- one_of(notebook where each.is_requested_by_person);
+		switch requested_object_name {
+			match book_obj {
+				requested_obj <- one_of(book where each.is_requested_by_person);
+			}
+			match notebook_obj {
+				requested_obj <- one_of(notebook where each.is_requested_by_person);
+			}
+			match food_obj {
+				requested_obj <- one_of(food where each.is_requested_by_person);
+			}
+			match teddy_bear_obj {
+				requested_obj <- one_of(teddy_bear where each.is_requested_by_person);
+			}
 		}
-				
+						
 		if requested_obj != nil {
 			is_requested_object_found <- true;
 			object_location <- requested_obj.location;
@@ -239,13 +257,14 @@ species service_robot parent: person {
 
 
 	reflex get_requested_object when: is_requested_object_found and is_busy and not grabbed_object {		
-		do goto target: object_location speed: 2.0 on: get_available_cells() recompute_path: false;
+		do goto target: object_location speed: speed on: get_available_cells() recompute_path: false;
 		
 		if (self distance_to object_location) < 1.0 {
 			no_cycles_found_object <- cycle;
 			time_needed_to_find_object <- (no_cycles_found_object - no_cycles_at_requested_object) * step;
 			time_to_find_objects << time_needed_to_find_object;
-			save ("\ttime needed to find the object: " + time_needed_to_find_object + " s") to: results_file_name rewrite: false;
+			save ("\ttime needed to find the object: " + time_needed_to_find_object + " s") 
+				to: results_file_name rewrite: false;
 			grabbed_object <- true;
 			
 			ask requested_obj {
@@ -265,7 +284,7 @@ species service_robot parent: person {
 		}
 			
 		if owner_location != nil and requested_obj != nil {
-			do goto target: owner_location speed: 2.0 on: get_available_cells() recompute_path: false;
+			do goto target: owner_location speed: speed on: get_available_cells() recompute_path: false;
 			
 			if (self distance_to owner_location) < 1.0 {
 				no_cycles_owner_received_object <- cycle;
@@ -300,7 +319,7 @@ species service_robot parent: person {
 	
 	reflex basic_move when: not is_busy {		
 		point my_next_location <- one_of(get_available_cells()).location;
-		do goto target: my_next_location speed: 0.5 on: get_available_cells();
+		do goto target: my_next_location speed: speed on: get_available_cells();
 	}
 }
 
@@ -315,14 +334,17 @@ species robot_owner parent: person {
 	}
 	
 	reflex ask_for_object when: not should_receive_object {
+		if no_requested_objects = max_no_requested_objects {
+			should_end_simulation <- true;
+			return;
+		}
+		
 		requested_object <- nil;
 		
 		requested_object <- get_random_object();
 		no_requested_objects <- no_requested_objects + 1;
 		
-		if no_requested_objects < max_no_requested_objects {
-			save ("\trequested object: " + requested_object) to: results_file_name rewrite: false;
-		}
+		save ("\trequested object: " + requested_object) to: results_file_name rewrite: false;
 		
 		if requested_object != nil {
 			no_cycles_at_requested_object <- cycle;
@@ -350,11 +372,20 @@ species robot_owner parent: person {
 		
 		object_base object;
 		
-		if requested_object_name = book_obj {
-			object <- one_of(book);
- 		} else if requested_object_name = notebook_obj {
- 			object <- one_of(notebook);
- 		}
+		switch requested_object_name {
+			match book_obj {
+				object <- one_of(book);
+			}
+			match notebook_obj {
+				object <- one_of(notebook);
+			}
+			match food_obj {
+				object <- one_of(food);
+			}
+			match teddy_bear_obj {
+				object <- one_of(teddy_bear);
+			}
+		}
  		 		
  		return object;
 	}	
@@ -387,6 +418,24 @@ species book parent: object_base {
 	init {
 		point my_location <-one_of(get_available_cells()).location;
 		do initialize(false, book_obj, book_color, my_location);
+	}	
+}
+
+species food parent: object_base {
+	rgb color <- #coral;
+	
+	init {
+		point my_location <-one_of(get_available_cells()).location;
+		do initialize(false, food_obj, color, my_location);
+	}	
+}
+
+species teddy_bear parent: object_base {
+	rgb color <- #darkgrey;
+	
+	init {
+		point my_location <-one_of(get_available_cells()).location;
+		do initialize(false, teddy_bear_obj, color, my_location);
 	}	
 }
 
@@ -437,6 +486,8 @@ experiment personalservicerobot type: gui {
 			species regular_person aspect: image_aspect;
 			species notebook aspect: default;
 			species book aspect: default;
+			species food aspect: default;
+			species teddy_bear aspect: default;
 			species closet aspect: image_aspect;
 			species bed aspect: image_aspect;
 			species table aspect: image_aspect;

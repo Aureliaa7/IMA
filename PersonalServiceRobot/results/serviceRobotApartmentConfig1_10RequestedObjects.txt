@@ -1,0 +1,57 @@
+		Personal Service Robot- using reflex functions
+
+
+	requested object: book(1)
+	time needed to find the object: 106.0 s
+	time needed to go to owner with the found object: 92.0 s
+	total time: 198.0 s
+-------------------------------------------------------------------------------
+	requested object: food(3)
+	time needed to find the object: 71.0 s
+	time needed to go to owner with the found object: 329.0 s
+	total time: 400.0 s
+-------------------------------------------------------------------------------
+	requested object: book(0)
+	time needed to find the object: 79.0 s
+	time needed to go to owner with the found object: 20.0 s
+	total time: 99.0 s
+-------------------------------------------------------------------------------
+	requested object: food(2)
+	time needed to find the object: 45.0 s
+	time needed to go to owner with the found object: 127.0 s
+	total time: 172.0 s
+-------------------------------------------------------------------------------
+	requested object: notebook(4)
+	time needed to find the object: 113.0 s
+	time needed to go to owner with the found object: 187.0 s
+	total time: 300.0 s
+-------------------------------------------------------------------------------
+	requested object: notebook(1)
+	time needed to find the object: 14.0 s
+	time needed to go to owner with the found object: 82.0 s
+	total time: 96.0 s
+-------------------------------------------------------------------------------
+	requested object: food(8)
+	time needed to find the object: 111.0 s
+	time needed to go to owner with the found object: 93.0 s
+	total time: 204.0 s
+-------------------------------------------------------------------------------
+	requested object: notebook(0)
+	time needed to find the object: 91.0 s
+	time needed to go to owner with the found object: 14.0 s
+	total time: 105.0 s
+-------------------------------------------------------------------------------
+	requested object: teddy_bear(3)
+	time needed to find the object: 83.0 s
+	time needed to go to owner with the found object: 241.0 s
+	total time: 324.0 s
+-------------------------------------------------------------------------------
+	requested object: food(5)
+	time needed to find the object: 73.0 s
+	time needed to go to owner with the found object: 339.0 s
+	total time: 412.0 s
+-------------------------------------------------------------------------------
+
+	*** average time needed to find the object: 78.6 s
+	*** average time needed to go to owner: 152.4 s
+	*** average time to complete a request:  231.0 s
